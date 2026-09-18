@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>8085 Lab</title>
+<meta name="description" content="An 8085 assembler, simulator and trainer-kit emulator for microprocessor lab practice.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&amp;family=DM+Mono:wght@300;400;500&amp;family=Zilla+Slab:wght@500;600;700&amp;display=swap">
+<style>
+:root{
+  --paper:#e6e8e3; --sheet:#f7f8f5; --sheet-2:#eceee8;
+  --ink:#16191b; --ink-2:#4b5359; --ink-3:#848b90;
+  --rule:#cfd4cd; --rule-2:#b0b7af; --rule-hard:#2a3033;
+  --blue:#25506f; --oxide:#ad3a1f; --panel:#1b1f22; --panel-ink:#e9ece7;
+  --panel-ink-2:#98a2a8; --panel-rule:#333a3e; --live:#ff6f43;
+  color-scheme:light dark;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0e1113; --sheet:#171a1c; --sheet-2:#1e2225;
+  --ink:#e4e7e3; --ink-2:#98a1a7; --ink-3:#6b7379;
+  --rule:#262b2e; --rule-2:#394044; --rule-hard:#7e888e;
+  --blue:#77a6c9; --oxide:#e2714c; --panel:#101315; --panel-rule:#282e32;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Archivo","Helvetica Neue",Arial,system-ui,sans-serif;font-size:14px;line-height:1.55;
+  -webkit-font-smoothing:antialiased}
+h1,h2{margin:0;font-family:"Zilla Slab",Georgia,serif;font-weight:600;text-wrap:balance}
+.mono{font-family:"DM Mono",ui-monospace,Menlo,monospace}
+.bar{background:var(--panel);border-bottom:2px solid var(--rule-hard);padding:11px 16px}
+.bar-in{max-width:960px;margin:0 auto;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.bar-in b{font-family:"Zilla Slab",Georgia,serif;font-weight:700;font-size:18px;color:var(--panel-ink)}
+.bar-in span{font-family:"Archivo",sans-serif;font-stretch:78%;font-weight:600;font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--live)}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px 56px}
+.lede{max-width:62ch;color:var(--ink-2);font-size:15px;margin:26px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0;
+  border:1px solid var(--rule);border-top:2px solid var(--rule-hard);margin-top:22px;background:var(--sheet)}
+.card{padding:18px 20px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:9px}
+.card:last-child{border-right:0}
+@media (max-width:560px){.card{border-right:0;border-bottom:1px solid var(--rule)}}
+.card h2{font-size:17px}
+.card p{margin:0;color:var(--ink-2);font-size:13.5px;flex:1 1 auto}
+.card ul{margin:0;padding-left:17px;color:var(--ink-2);font-size:12.5px}
+.card li{margin-bottom:2px}
+.go{display:inline-flex;align-self:flex-start;align-items:center;gap:7px;text-decoration:none;
+  font-size:12px;font-stretch:84%;font-weight:600;letter-spacing:.055em;text-transform:uppercase;
+  background:var(--oxide);color:#fff;border:1px solid var(--oxide);border-radius:3px;padding:7px 13px;margin-top:4px}
+.go:hover{filter:brightness(1.08)}
+.note{margin-top:24px;padding:11px 14px;border-left:3px solid var(--blue);background:var(--sheet);
+  font-size:12.5px;color:var(--ink-2);max-width:72ch}
+footer{margin-top:28px;padding-top:12px;border-top:1px solid var(--rule);color:var(--ink-3);font-size:11.5px}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in"><b>8085 Lab</b><span>Microprocessor practice</span></div></header>
+<div class="wrap">
+  <p class="lede">Two tools for 8085 microprocessor lab work: one for writing and checking assembly,
+  one for practising the trainer-kit key sequences you use in the exam. Everything runs in the browser
+  &mdash; no install, no backend, works offline once loaded.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Lab Bench</h2>
+      <p>Write 8085 assembly, assemble it, and single-step it while you watch the registers, the flag
+      register and memory. Comes with 15 lab assignments that are checked automatically.</p>
+      <ul>
+        <li>Two-pass assembler with the full instruction set</li>
+        <li>Hand-assembly listing: address, opcode, mnemonic</li>
+        <li>Editable memory, T-state and timing counters</li>
+        <li>Searchable opcode reference with flag effects</li>
+      </ul>
+      <a class="go" href="./lab-bench.html">Open the bench</a>
+    </div>
+    <div class="card">
+      <h2>Trainer Kit</h2>
+      <p>A simulated trainer board &mdash; six-digit LED display and hex keypad &mdash; with the real
+      monitor commands, so the key sequences are muscle memory before you sit down at the bench.</p>
+      <ul>
+        <li>EX MEM, EX REG, GO, EXEC, SI, NEXT, PREV</li>
+        <li>23 exercises, each with its opcode sheet</li>
+        <li>Checks the bytes you keyed in, then the result</li>
+        <li>Guided mode highlights the next key to press</li>
+      </ul>
+      <a class="go" href="./trainer-kit.html">Open the kit</a>
+    </div>
+  </div>
+
+  <p class="note">Opcodes, T-states and flag behaviour follow the Intel 8085A datasheet. Key labels on
+  the simulated kit follow the common Indian lab trainers (Vinytics VMC-85xx, Dyna-85, ALS-SDA-85);
+  other boards use the same sequences under different labels.</p>
+
+  <footer>Built for microprocessor lab practice.</footer>
+</div>
+</body>
+</html>

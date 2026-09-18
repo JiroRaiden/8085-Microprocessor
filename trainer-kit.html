@@ -1,0 +1,1712 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>8085 Trainer Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#f3f4f1; --panel:#ffffff; --panel-2:#e9ebe6;
+  --ink:#1a1e23; --ink-2:#59626d; --ink-3:#8a939d;
+  --line:#d6dad3; --line-2:#c2c8bf;
+  --accent:#b85c15; --accent-soft:#f7e8d8;
+  --ok:#2c7a4d; --ok-soft:#dcefe3; --bad:#b03a33; --bad-soft:#f7e0de;
+  --code-bg:#f7f8f5;
+  --shadow:0 1px 2px rgba(26,30,35,.06), 0 8px 24px -16px rgba(26,30,35,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121517; --panel:#1a1e21; --panel-2:#23282c;
+    --ink:#e7eae5; --ink-2:#9ba5ad; --ink-3:#6c757d;
+    --line:#2c3237; --line-2:#3a4249;
+    --accent:#e0913f; --accent-soft:#33261a;
+    --ok:#52bd85; --ok-soft:#183026; --bad:#e26e64; --bad-soft:#35201f;
+    --code-bg:#15181b;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -18px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121517; --panel:#1a1e21; --panel-2:#23282c;
+  --ink:#e7eae5; --ink-2:#9ba5ad; --ink-3:#6c757d;
+  --line:#2c3237; --line-2:#3a4249;
+  --accent:#e0913f; --accent-soft:#33261a;
+  --ok:#52bd85; --ok-soft:#183026; --bad:#e26e64; --bad-soft:#35201f;
+  --code-bg:#15181b;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -18px rgba(0,0,0,.9);
+}
+/* the board itself keeps one look in both themes - it is a piece of hardware */
+:root{
+  --board:#2b2f33; --board-2:#33383d; --board-edge:#17191b;
+  --silk:#a9b2b8; --silk-dim:#6d767c;
+  --cap:#dfe2e0; --cap-edge:#b3b8b5; --cap-ink:#23272a;
+  --cap-cmd:#c1443a; --cap-cmd-edge:#93302a; --cap-cmd-ink:#fff;
+  --cap-nav:#35404a; --cap-nav-edge:#212930; --cap-nav-ink:#e8eef2;
+  --led-bg:#210b06; --led-on:#ff3a1c; --led-off:#3a140d;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+.lbl{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+h1,h2,h3{margin:0;text-wrap:balance}
+
+.wrap{max-width:1300px;margin:0 auto;padding-inline:16px;padding-block:0 44px}
+header.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);padding-inline:16px}
+.bar-in{max-width:1300px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding-block:10px}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand b{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.brand span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+  font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:600}
+
+.btn{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line-2);background:var(--panel);
+  color:var(--ink);padding:6px 12px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.ghost{background:transparent}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input[type=text],textarea{font:inherit;font-size:13px;background:var(--panel);color:var(--ink);
+  border:1px solid var(--line-2);border-radius:6px;padding:5px 8px}
+
+.stage{display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:18px;margin-top:16px;align-items:start}
+@media (max-width:980px){.stage{grid-template-columns:minmax(0,1fr)}}
+
+/* ============ the board ============ */
+.kit{
+  background:linear-gradient(180deg,var(--board-2),var(--board));
+  border:1px solid var(--board-edge);border-radius:14px;padding:16px;
+  box-shadow:0 2px 0 rgba(255,255,255,.05) inset, 0 18px 40px -24px rgba(0,0,0,.9);
+}
+.kit-top{display:flex;align-items:flex-end;gap:10px;margin-bottom:12px}
+.kit-name{font-family:"IBM Plex Sans Condensed",sans-serif;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;font-size:13px;color:var(--silk)}
+.kit-sub{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--silk-dim);margin-left:auto}
+
+.screen{background:var(--led-bg);border:1px solid #000;border-radius:9px;padding:14px 16px 8px;
+  box-shadow:inset 0 2px 12px rgba(0,0,0,.9)}
+.digits{display:flex;align-items:center;gap:20px;justify-content:center}
+.digits .grp{display:flex;align-items:center;gap:7px}
+.digits svg{width:100%;height:auto;display:block}
+.digit{flex:0 1 46px;max-width:46px}
+.seg{fill:var(--led-off)}
+.seg.on{fill:var(--led-on);filter:drop-shadow(0 0 4px rgba(255,58,28,.75))}
+.scr-legend{display:flex;justify-content:center;gap:20px;margin-top:6px}
+.scr-legend span{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:9.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:#7a4a3c;text-align:center}
+.scr-legend .a{flex:0 1 205px} .scr-legend .d{flex:0 1 99px}
+
+.keys{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:14px}
+.key{
+  position:relative;appearance:none;border:0;cursor:pointer;font:inherit;
+  background:linear-gradient(180deg,#fff,var(--cap));color:var(--cap-ink);
+  border-radius:7px;padding:9px 4px 7px;min-height:52px;
+  box-shadow:0 3px 0 var(--cap-edge), 0 4px 6px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  transition:transform .04s linear, box-shadow .04s linear;
+}
+.key .main{font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:600;line-height:1}
+.key .sub{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:8.5px;letter-spacing:.08em;
+  text-transform:uppercase;opacity:.62;line-height:1}
+.key.cmd{background:linear-gradient(180deg,#d6564b,var(--cap-cmd));color:var(--cap-cmd-ink);box-shadow:0 3px 0 var(--cap-cmd-edge),0 4px 6px rgba(0,0,0,.45)}
+.key.cmd .main{font-size:12.5px;font-family:"IBM Plex Sans Condensed",sans-serif;letter-spacing:.06em}
+.key.nav{background:linear-gradient(180deg,#46525e,var(--cap-nav));color:var(--cap-nav-ink);box-shadow:0 3px 0 var(--cap-nav-edge),0 4px 6px rgba(0,0,0,.45)}
+.key.nav .main{font-size:12.5px;font-family:"IBM Plex Sans Condensed",sans-serif;letter-spacing:.06em}
+.key:active,.key.down{transform:translateY(3px);box-shadow:0 0 0 rgba(0,0,0,0),0 1px 3px rgba(0,0,0,.5)}
+.key.hint{outline:3px solid #ffc857;outline-offset:2px;animation:blink 1.1s infinite}
+@keyframes blink{50%{outline-color:rgba(255,200,87,.25)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.tape{margin-top:12px;background:#1d2023;border:1px solid var(--board-edge);border-radius:7px;
+  padding:7px 10px;min-height:34px;display:flex;align-items:center;gap:6px;overflow-x:auto}
+.tape .t{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:#cfd6da;background:#2b3136;
+  border-radius:4px;padding:2px 6px;white-space:nowrap}
+.tape .t.c{background:#5c2b26;color:#ffd9d3}
+.tape .ph{color:var(--silk-dim);font-size:11.5px}
+
+.kitfoot{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:12px}
+.kitfoot .note{font-size:11.5px;color:var(--silk-dim);flex:1 1 180px}
+.mini{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:11px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--silk);background:#1d2023;border:1px solid #141618;
+  border-radius:6px;padding:5px 9px;cursor:pointer}
+.mini[aria-pressed="true"]{background:#4a3a1a;color:#ffc857;border-color:#6b5322}
+
+/* ============ right column ============ */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 8px;overflow-x:auto}
+.tab{font:inherit;font-size:13px;font-weight:500;background:none;border:0;cursor:pointer;padding:10px 12px;
+  color:var(--ink-2);border-bottom:2px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.pad{padding:14px 16px}
+
+.taskbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.taskbar select{flex:1 1 220px;max-width:340px}
+h3.tt{font-size:16px;font-weight:600;margin-bottom:2px}
+p.stmt{color:var(--ink-2);max-width:64ch;margin:4px 0 12px}
+
+.sheet{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:8px}
+.sheet-hd{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--panel-2);border-bottom:1px solid var(--line)}
+.sheet-hd .lbl{color:var(--ink-2)}
+.sheet-hd .sp{margin-left:auto}
+.sheet-bd{max-height:270px;overflow:auto}
+table.sh{width:100%;border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+table.sh th{position:sticky;top:0;background:var(--panel);text-align:left;font-family:"IBM Plex Sans Condensed",sans-serif;
+  font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);padding:5px 10px;border-bottom:1px solid var(--line-2)}
+table.sh td{padding:2px 10px;border-bottom:1px solid var(--line)}
+table.sh td.ad{color:var(--accent)}
+table.sh td.by{font-weight:600}
+table.sh td.mn{color:var(--ink-2);white-space:pre}
+table.sh tr.ok td.by{color:var(--ok)}
+table.sh tr.bad td{background:var(--bad-soft)}
+table.sh tr.bad td.by{color:var(--bad);font-weight:700}
+
+.rowbtns{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+.verdict{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:13.5px}
+.verdict.pass{background:var(--ok-soft);color:var(--ok)}
+.verdict.fail{background:var(--bad-soft);color:var(--bad)}
+.verdict.info{background:var(--panel-2);color:var(--ink-2)}
+.chk{display:flex;gap:9px;align-items:center;font-family:"IBM Plex Mono",monospace;font-size:12.5px;
+  padding:5px 9px;border-radius:6px;border:1px solid var(--line);margin-top:5px}
+.chk.pass{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 40%,transparent)}
+.chk.fail{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+.chk .mark{font-weight:700}
+.chk.pass .mark{color:var(--ok)} .chk.fail .mark{color:var(--bad)}
+
+.seqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.seq{border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seq h4{margin:0;font-size:13px;font-weight:600;padding:8px 11px;background:var(--panel-2);border-bottom:1px solid var(--line)}
+.seq .body{padding:10px 11px}
+.keyline{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:7px}
+.kb{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:11px;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;background:var(--panel-2);border:1px solid var(--line-2);border-bottom-width:2px;
+  border-radius:5px;padding:2px 7px;white-space:nowrap}
+.kb.h{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.keyline .ar{color:var(--ink-3);font-size:11px}
+.seq p{margin:0;font-size:12.5px;color:var(--ink-2)}
+
+.regs{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:7px}
+.reg{background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:5px 8px;display:flex;gap:7px;align-items:baseline}
+.reg .n{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--ink-3)}
+.reg .v{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:500}
+.flags{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.flag{flex:1 1 0;min-width:44px;text-align:center;border:1px solid var(--line);border-radius:7px;padding:4px 2px;background:var(--panel-2)}
+.flag .n{font-family:"IBM Plex Sans Condensed",sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;color:var(--ink-3)}
+.flag .v{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600}
+.flag.on{background:var(--accent);border-color:var(--accent)}
+.flag.on .n{color:rgba(255,255,255,.75)} .flag.on .v{color:#fff}
+.memscroll{overflow-x:auto;border:1px solid var(--line);border-radius:7px;background:var(--code-bg);margin-top:10px}
+table.mem{border-collapse:collapse;font-family:"IBM Plex Mono",monospace;font-size:12px}
+table.mem th{color:var(--ink-3);font-weight:500;font-size:10.5px;padding:4px 3px;text-align:center;border-bottom:1px solid var(--line)}
+table.mem td.ad{color:var(--accent);padding:0 7px 0 8px;font-size:11.5px;white-space:nowrap}
+table.mem td.b{padding:2px 4px;text-align:center;min-width:24px}
+table.mem td.b.t{color:var(--accent);font-weight:600;background:var(--accent-soft)}
+table.mem td.b.pc{box-shadow:inset 0 0 0 2px var(--ok);border-radius:3px}
+
+textarea#asm{width:100%;min-height:200px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;
+  line-height:1.5;white-space:pre;background:var(--code-bg);resize:vertical}
+.warn{margin-top:14px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);
+  border-radius:0 7px 7px 0;font-size:12.5px;color:var(--ink-2)}
+.warn b{color:var(--ink)}
+footer{margin-top:24px;padding-top:14px;border-top:1px solid var(--line);color:var(--ink-3);font-size:12px}
+</style>
+<style>
+  :root{color-scheme:light dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+  [hidden]{display:none!important}
+  img{max-width:100%}
+  a.btn{text-decoration:none}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <div class="brand"><b>8085 Trainer Kit</b><span>key it in · run it · read it back</span></div>
+    <a class="btn ghost sm" href="./lab-bench.html">Lab bench &rarr;</a>
+    <button class="btn ghost sm" id="bTheme">Theme</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stage">
+
+    <!-- ============ THE BOARD ============ -->
+    <div>
+      <div class="kit">
+        <div class="kit-top">
+          <span class="kit-name">Microprocessor Trainer &middot; 8085A</span>
+          <span class="kit-sub">Monitor v1.0</span>
+        </div>
+
+        <div class="screen">
+          <div class="digits" id="digits"></div>
+          <div class="scr-legend"><span class="a">Address</span><span class="d">Data</span></div>
+        </div>
+
+        <div class="keys" id="keys"></div>
+
+        <div class="tape" id="tape"><span class="ph">Keys you press appear here</span></div>
+
+        <div class="kitfoot">
+          <button class="mini" id="bGuide" aria-pressed="false">Guide me</button>
+          <button class="mini" id="bTapeClr">Clear keys</button>
+          <span class="note" id="kitNote">Press <b>RESET</b> to wake the monitor.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ RIGHT ============ -->
+    <div class="card">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-tab="task">Exercise</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="seq">Key sequences</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="peek">Peek inside</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="sheet">Make a code sheet</button>
+      </div>
+
+      <div id="tab-task" class="pad"></div>
+
+      <div id="tab-seq" class="pad" hidden>
+        <div class="seqgrid">
+          <div class="seq"><h4>Key in a program</h4><div class="body">
+            <div class="keyline"><span class="kb h">Reset</span><span class="ar">→</span><span class="kb h">Ex Mem</span><span class="ar">→</span><span class="kb">2</span><span class="kb">0</span><span class="kb">0</span><span class="kb">0</span><span class="ar">→</span><span class="kb h">Next</span></div>
+            <p>The display now shows address <span class="mono">2000</span> and whatever byte is stored there. Type two hex digits for the opcode, press <b>NEXT</b> to store it and move to 2001, and carry on. Press <b>RESET</b> when the last byte is in.</p>
+          </div></div>
+
+          <div class="seq"><h4>Read a location back</h4><div class="body">
+            <div class="keyline"><span class="kb h">Ex Mem</span><span class="ar">→</span><span class="kb">2</span><span class="kb">0</span><span class="kb">5</span><span class="kb">2</span><span class="ar">→</span><span class="kb h">Next</span></div>
+            <p>This is how you read your answer after running a program. <b>NEXT</b> steps forward through memory, <b>PREV</b> steps back. Nothing is written unless you type new digits.</p>
+          </div></div>
+
+          <div class="seq"><h4>Run the program</h4><div class="body">
+            <div class="keyline"><span class="kb h">Reset</span><span class="ar">→</span><span class="kb h">Go</span><span class="ar">→</span><span class="kb">2</span><span class="kb">0</span><span class="kb">0</span><span class="kb">0</span><span class="ar">→</span><span class="kb h">Exec</span></div>
+            <p>The display goes blank while the processor runs and comes back when it reaches <span class="mono">HLT</span>. If it never comes back, your program is stuck in a loop — press <b>RESET</b>.</p>
+          </div></div>
+
+          <div class="seq"><h4>Single-step through it</h4><div class="body">
+            <div class="keyline"><span class="kb h">Go</span><span class="ar">→</span><span class="kb">2</span><span class="kb">0</span><span class="kb">0</span><span class="kb">0</span><span class="ar">→</span><span class="kb h">SI</span><span class="ar">then</span><span class="kb h">SI</span></div>
+            <p>Each <b>SI</b> executes one instruction and shows the next address with the opcode sitting there. Use <b>Ex Reg</b> in between to see what the registers did.</p>
+          </div></div>
+
+          <div class="seq"><h4>Examine registers</h4><div class="body">
+            <div class="keyline"><span class="kb h">Ex Reg</span><span class="ar">→</span><span class="kb">A</span><span class="ar">or</span><span class="kb">8</span><span class="ar">(H)</span><span class="ar">→</span><span class="kb h">Next</span></div>
+            <p>The small legend under each hex key is its register name in this mode: <span class="mono">A B C D E F</span> on keys A–F, <span class="mono">H</span> on 8, <span class="mono">L</span> on 9, <span class="mono">SP</span> on 0, <span class="mono">PC</span> on 1. <b>NEXT</b> cycles to the following register.</p>
+          </div></div>
+
+          <div class="seq"><h4>Your keyboard works too</h4><div class="body">
+            <p><span class="mono">0–9, A–F</span> are the hex keys. <span class="mono">Enter</span> = NEXT, <span class="mono">Backspace</span> = PREV, <span class="mono">Esc</span> = RESET, <span class="mono">M</span> = EX MEM, <span class="mono">R</span> = EX REG, <span class="mono">G</span> = GO, <span class="mono">X</span> = EXEC, <span class="mono">S</span> = SI.</p>
+          </div></div>
+        </div>
+        <div class="warn"><b>Labels differ between kits.</b> Vinytics and Dyna boards say <span class="mono">EXMEM</span> / <span class="mono">EXREG</span>; ALS and ESA boards say <span class="mono">SUBST MEM</span> / <span class="mono">REG</span>, and the execute key may be marked <span class="mono">FILL</span>, <span class="mono">EXEC</span> or <span class="mono">GO</span> again. The <em>sequence</em> is the same everywhere: command key, address, confirm. Check the legend printed on your kit before you start.</div>
+      </div>
+
+      <div id="tab-peek" class="pad" hidden>
+        <p class="stmt">Your real kit shows you six digits and nothing else. This panel is here so you can see what the processor is actually doing while you learn the key sequences — treat it as training wheels.</p>
+        <span class="lbl">Registers</span>
+        <div class="regs" id="pRegs" style="margin-top:6px"></div>
+        <div class="flags" id="pFlags"></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px">
+          <span class="lbl">Memory from</span>
+          <input type="text" id="pBase" value="2000" maxlength="4" class="mono" style="width:70px;text-transform:uppercase">
+          <button class="btn sm ghost" data-goto="2000">2000</button>
+          <button class="btn sm ghost" data-goto="2050">2050</button>
+          <button class="btn sm ghost" data-goto="2060">2060</button>
+        </div>
+        <div class="memscroll"><table class="mem" id="pMem"></table></div>
+      </div>
+
+      <div id="tab-sheet" class="pad" hidden>
+        <p class="stmt">Paste the assembly you were given (or wrote) and get the address-and-opcode sheet you copy onto the kit. This is the table you would otherwise build by hand from the opcode chart.</p>
+        <textarea id="asm" spellcheck="false"></textarea>
+        <div class="rowbtns">
+          <button class="btn primary" id="bMake">Make the code sheet</button>
+          <button class="btn" id="bSendKit">Use it as the exercise</button>
+        </div>
+        <div id="sheetOut"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Six-digit display, hex keypad and monitor commands modelled on the common Indian lab trainers (Vinytics VMC-85xx, Dyna-85, ALS-SDA-85).</footer>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   1.  TABLES
+   ============================================================ */
+const REGC = {B:0,C:1,D:2,E:3,H:4,L:5,M:6,A:7};
+const RPC  = {B:0,D:1,H:2,SP:3};
+const RPP  = {B:0,D:1,H:2,PSW:3};
+const REGN = ["B","C","D","E","H","L","M","A"];
+
+const COND = {NZ:0,Z:1,NC:2,C:3,PO:4,PE:5,P:6,M:7};
+const JMPC = {JNZ:0xC2,JZ:0xCA,JNC:0xD2,JC:0xDA,JPO:0xE2,JPE:0xEA,JP:0xF2,JM:0xFA};
+const CALC = {CNZ:0xC4,CZ:0xCC,CNC:0xD4,CC:0xDC,CPO:0xE4,CPE:0xEC,CP:0xF4,CM:0xFC};
+const RETC = {RNZ:0xC0,RZ:0xC8,RNC:0xD0,RC:0xD8,RPO:0xE0,RPE:0xE8,RP:0xF0,RM:0xF8};
+
+const ALUR = {ADD:0x80,ADC:0x88,SUB:0x90,SBB:0x98,ANA:0xA0,XRA:0xA8,ORA:0xB0,CMP:0xB8};
+const ALUI = {ADI:0xC6,ACI:0xCE,SUI:0xD6,SBI:0xDE,ANI:0xE6,XRI:0xEE,ORI:0xF6,CPI:0xFE};
+
+const SIMPLE = {NOP:0x00,RLC:0x07,RRC:0x0F,RAL:0x17,RAR:0x1F,RIM:0x20,DAA:0x27,CMA:0x2F,
+  SIM:0x30,STC:0x37,CMC:0x3F,HLT:0x76,RET:0xC9,XCHG:0xEB,XTHL:0xE3,SPHL:0xF9,PCHL:0xE9,
+  EI:0xFB,DI:0xF3,JMP:0xC3,CALL:0xCD};
+
+const A16 = {LDA:0x3A,STA:0x32,LHLD:0x2A,SHLD:0x22};
+
+/* ============================================================
+   2.  ASSEMBLER
+   ============================================================ */
+function AsmError(msg,line){const e=new Error(msg);e.line=line;return e;}
+
+function resolveTerm(t,syms){
+  t=t.trim();
+  if(!t) throw new Error("empty operand");
+  const U=t.toUpperCase();
+  if(Object.prototype.hasOwnProperty.call(syms,U)) return syms[U];
+  if(/^'.'$/.test(t)) return t.charCodeAt(1);
+  if(/^[0-9][0-9a-f]*h$/i.test(t)) return parseInt(t.slice(0,-1),16);
+  if(/^0x[0-9a-f]+$/i.test(t)) return parseInt(t.slice(2),16);
+  if(/^[01]+b$/i.test(t)) return parseInt(t.slice(0,-1),2);
+  if(/^[0-9]+d?$/i.test(t)) return parseInt(t.replace(/[dD]$/,""),10);
+  if(/^[a-z_][a-z0-9_]*$/i.test(t)) throw new Error('unknown label "'+t+'"');
+  throw new Error('cannot read "'+t+'" as a number or label');
+}
+function evalExpr(e,syms){
+  const toks = String(e).match(/'.'|[^+\-]+|[+\-]/g)||[];
+  let val=0,sign=1,seen=false;
+  for(const t of toks){
+    if(t==="+"){sign= 1;continue;}
+    if(t==="-"){sign=-1;continue;}
+    val+=sign*resolveTerm(t,syms); sign=1; seen=true;
+  }
+  if(!seen) throw new Error("empty expression");
+  return val;
+}
+function reg(t,line){
+  const U=String(t).trim().toUpperCase();
+  if(!(U in REGC)) throw AsmError('"'+t+'" is not a register (use B C D E H L M A)',line);
+  return REGC[U];
+}
+function rp(t,line,tab,what){
+  const U=String(t).trim().toUpperCase();
+  if(!(U in tab)) throw AsmError('"'+t+'" is not a valid '+what,line);
+  return tab[U];
+}
+function b8(v,line,what){
+  v=Number(v);
+  if(!Number.isFinite(v)) throw AsmError("bad value",line);
+  if(v<-128||v>255) throw AsmError((what||"value")+" "+v+" does not fit in one byte",line);
+  return v&0xFF;
+}
+
+/* split a source line into {label, mnemonic, operands} */
+function splitLine(raw){
+  let s=raw.replace(/;.*$/,"").trim();
+  if(!s) return null;
+  let label=null;
+  const m=s.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*:\s*(.*)$/);
+  if(m){label=m[1].toUpperCase();s=m[2].trim();}
+  if(!s) return {label,mn:null,ops:[]};
+  const sp=s.search(/\s/);
+  const mn=(sp<0?s:s.slice(0,sp)).toUpperCase();
+  const rest=(sp<0?"":s.slice(sp)).trim();
+  const ops=rest?rest.split(",").map(x=>x.trim()).filter(x=>x!==""):[];
+  return {label,mn,ops};
+}
+
+function sizeOf(mn,ops,line){
+  if(mn==="DB") return ops.reduce((n,o)=>n+(/^'.*'$/.test(o)&&o.length>3?o.length-2:1),0);
+  if(mn==="DW") return ops.length*2;
+  if(mn==="DS") return -1;                 // resolved by caller
+  if(mn==="ORG"||mn==="EQU"||mn==="END") return 0;
+  if(mn==="LXI") return 3;
+  if(mn in A16) return 3;
+  if(mn==="JMP"||mn==="CALL"||mn in JMPC||mn in CALC) return 3;
+  if(mn==="MVI"||mn in ALUI||mn==="IN"||mn==="OUT") return 2;
+  return 1;
+}
+
+function assemble(src){
+  const lines=src.split(/\r?\n/);
+  const syms=Object.create(null);
+  const parsed=[];
+  let pc=0x2000, org=0x2000, sawOrg=false, ended=false;
+
+  // ---- pass 1 -------------------------------------------------
+  for(let i=0;i<lines.length&&!ended;i++){
+    const raw=lines[i];
+    const eq=raw.replace(/;.*$/,"").match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s+EQU\s+(.+?)\s*$/i);
+    if(eq){ syms[eq[1].toUpperCase()]=evalExpr(eq[2],syms); parsed.push({i,skip:true}); continue; }
+    const p=splitLine(raw);
+    if(!p) continue;
+    if(p.label){
+      if(p.label in syms) throw AsmError('label "'+p.label+'" is defined twice',i+1);
+      syms[p.label]=pc;
+    }
+    if(!p.mn) continue;
+    if(p.mn==="END"){ended=true;parsed.push({i,mn:"END",ops:[],addr:pc});continue;}
+    if(p.mn==="ORG"){
+      const v=evalExpr(p.ops[0]||"",syms)&0xFFFF;
+      pc=v; if(!sawOrg){org=v;sawOrg=true;}
+      parsed.push({i,mn:"ORG",ops:p.ops,addr:pc,dir:true});
+      continue;
+    }
+    let sz=sizeOf(p.mn,p.ops,i+1);
+    if(sz<0) sz=evalExpr(p.ops[0]||"0",syms);
+    parsed.push({i,mn:p.mn,ops:p.ops,addr:pc,size:sz,dir:(p.mn==="DB"||p.mn==="DW"||p.mn==="DS")});
+    pc=(pc+sz)&0xFFFF;
+  }
+
+  // ---- pass 2 -------------------------------------------------
+  const out=[];            // {addr, bytes:[], line, text}
+  const image=new Map();
+  for(const p of parsed){
+    if(p.skip||p.mn==="END") continue;
+    const ln=p.i+1, mn=p.mn, ops=p.ops;
+    let bytes=[];
+    const need=n=>{ if(ops.length!==n) throw AsmError(mn+" needs "+n+" operand"+(n===1?"":"s")+", got "+ops.length,ln); };
+    const num=(o,what)=>{ try{return evalExpr(o,syms);}catch(e){throw AsmError(e.message,ln);} };
+    const a16=o=>{const v=num(o)&0xFFFF;return [v&0xFF,(v>>8)&0xFF];};
+
+    try{
+      if(mn==="ORG"){ /* nothing emitted */ }
+      else if(mn==="DB"){ for(const o of ops){
+          if(/^'.*'$/.test(o)&&o.length>3){ for(const ch of o.slice(1,-1)) bytes.push(ch.charCodeAt(0)&0xFF); }
+          else bytes.push(b8(num(o),ln,"DB byte"));
+        } }
+      else if(mn==="DW"){ for(const o of ops){ const v=num(o)&0xFFFF; bytes.push(v&0xFF,(v>>8)&0xFF); } }
+      else if(mn==="DS"){ for(let k=0;k<p.size;k++) bytes.push(0); }
+      else if(mn==="MOV"){ need(2);
+        const d=reg(ops[0],ln), s=reg(ops[1],ln);
+        if(d===6&&s===6) throw AsmError("MOV M, M is not a valid instruction",ln);
+        bytes=[0x40|(d<<3)|s];
+      }
+      else if(mn==="MVI"){ need(2); bytes=[0x06|(reg(ops[0],ln)<<3), b8(num(ops[1]),ln,"MVI data")]; }
+      else if(mn==="LXI"){ need(2); bytes=[0x01|(rp(ops[0],ln,RPC,"register pair (B, D, H or SP)")<<4), ...a16(ops[1])]; }
+      else if(mn in A16){ need(1); bytes=[A16[mn], ...a16(ops[0])]; }
+      else if(mn==="LDAX"||mn==="STAX"){ need(1);
+        const r=rp(ops[0],ln,{B:0,D:1},"register pair for "+mn+" (only B or D)");
+        bytes=[(mn==="LDAX"?0x0A:0x02)|(r<<4)];
+      }
+      else if(mn==="INX"||mn==="DCX"||mn==="DAD"){ need(1);
+        const r=rp(ops[0],ln,RPC,"register pair (B, D, H or SP)");
+        bytes=[(mn==="INX"?0x03:mn==="DCX"?0x0B:0x09)|(r<<4)];
+      }
+      else if(mn==="INR"||mn==="DCR"){ need(1); bytes=[(mn==="INR"?0x04:0x05)|(reg(ops[0],ln)<<3)]; }
+      else if(mn in ALUR){
+        if(ops.length!==1) throw AsmError(mn+" takes one register (e.g. "+mn+" B or "+mn+" M)",ln);
+        bytes=[ALUR[mn]|reg(ops[0],ln)];
+      }
+      else if(mn in ALUI){ need(1); bytes=[ALUI[mn], b8(num(ops[0]),ln,mn+" data")]; }
+      else if(mn==="PUSH"||mn==="POP"){ need(1);
+        const r=rp(ops[0],ln,RPP,"register pair (B, D, H or PSW)");
+        bytes=[(mn==="PUSH"?0xC5:0xC1)|(r<<4)];
+      }
+      else if(mn==="RST"){ need(1); const n=num(ops[0]);
+        if(n<0||n>7) throw AsmError("RST takes 0–7",ln);
+        bytes=[0xC7|(n<<3)];
+      }
+      else if(mn==="IN"||mn==="OUT"){ need(1); bytes=[(mn==="IN"?0xDB:0xD3), b8(num(ops[0]),ln,"port")]; }
+      else if(mn==="JMP"||mn==="CALL"){ need(1); bytes=[SIMPLE[mn], ...a16(ops[0])]; }
+      else if(mn in JMPC){ need(1); bytes=[JMPC[mn], ...a16(ops[0])]; }
+      else if(mn in CALC){ need(1); bytes=[CALC[mn], ...a16(ops[0])]; }
+      else if(mn in RETC){ if(ops.length) throw AsmError(mn+" takes no operand",ln); bytes=[RETC[mn]]; }
+      else if(mn in SIMPLE){ if(ops.length) throw AsmError(mn+" takes no operand",ln); bytes=[SIMPLE[mn]]; }
+      else throw AsmError('"'+mn+'" is not an 8085 instruction',ln);
+    }catch(e){ if(e.line===undefined)e.line=ln; throw e; }
+
+    if(bytes.length){
+      let a=p.addr;
+      for(const b of bytes){ image.set(a&0xFFFF,b&0xFF); a=(a+1)&0xFFFF; }
+    }
+    out.push({addr:p.addr,bytes,line:ln,text:lines[p.i].replace(/\t/g,"    ").replace(/\s+$/,""),dir:!!p.dir||mn==="ORG"});
+  }
+  return {rows:out,image,symbols:syms,start:org,size:image.size};
+}
+
+/* ============================================================
+   3.  CPU
+   ============================================================ */
+const MEM=new Uint8Array(0x10000);
+const PORTS=new Uint8Array(256);
+const touched=new Set();
+let lastOut=null;
+
+const cpu={a:0,b:0,c:0,d:0,e:0,h:0,l:0,sp:0xFFFF,pc:0x2000,
+  fs:0,fz:0,fac:0,fp:0,fcy:0,halted:false,instr:0,tstates:0};
+
+function cpuReset(pc){
+  cpu.a=cpu.b=cpu.c=cpu.d=cpu.e=cpu.h=cpu.l=0;
+  cpu.sp=0xFFFF; cpu.pc=pc&0xFFFF;
+  cpu.fs=cpu.fz=cpu.fac=cpu.fp=cpu.fcy=0;
+  cpu.halted=false; cpu.instr=0; cpu.tstates=0;
+  lastOut=null;
+}
+const HL=()=>((cpu.h<<8)|cpu.l)&0xFFFF;
+const BC=()=>((cpu.b<<8)|cpu.c)&0xFFFF;
+const DE=()=>((cpu.d<<8)|cpu.e)&0xFFFF;
+function setHL(v){cpu.h=(v>>8)&0xFF;cpu.l=v&0xFF;}
+
+function rd(a){return MEM[a&0xFFFF];}
+function wr(a,v){a&=0xFFFF;MEM[a]=v&0xFF;touched.add(a);}
+
+function getR(c){
+  switch(c){case 0:return cpu.b;case 1:return cpu.c;case 2:return cpu.d;case 3:return cpu.e;
+    case 4:return cpu.h;case 5:return cpu.l;case 6:return rd(HL());default:return cpu.a;}
+}
+function setR(c,v){
+  v&=0xFF;
+  switch(c){case 0:cpu.b=v;break;case 1:cpu.c=v;break;case 2:cpu.d=v;break;case 3:cpu.e=v;break;
+    case 4:cpu.h=v;break;case 5:cpu.l=v;break;case 6:wr(HL(),v);break;default:cpu.a=v;}
+}
+const parity=v=>{let n=0;for(let i=0;i<8;i++)if(v&(1<<i))n++;return n%2===0?1:0;};
+function szp(v){cpu.fz=(v&0xFF)===0?1:0;cpu.fs=(v&0x80)?1:0;cpu.fp=parity(v&0xFF);}
+
+function addA(val,carryIn,store){
+  const a=cpu.a,r=a+val+carryIn;
+  cpu.fcy=r>0xFF?1:0;
+  cpu.fac=((a&0x0F)+(val&0x0F)+carryIn)>0x0F?1:0;
+  szp(r&0xFF);
+  if(store)cpu.a=r&0xFF;
+  return r&0xFF;
+}
+function subA(val,borrowIn,store){
+  const a=cpu.a, nv=(~val)&0xFF, ci=borrowIn?0:1;
+  const r=a+nv+ci;
+  cpu.fcy=r>0xFF?0:1;                       // carry-out inverted = borrow
+  cpu.fac=((a&0x0F)+(nv&0x0F)+ci)>0x0F?1:0;
+  szp(r&0xFF);
+  if(store)cpu.a=r&0xFF;
+  return r&0xFF;
+}
+function push16(v){cpu.sp=(cpu.sp-1)&0xFFFF;wr(cpu.sp,(v>>8)&0xFF);cpu.sp=(cpu.sp-1)&0xFFFF;wr(cpu.sp,v&0xFF);}
+function pop16(){const lo=rd(cpu.sp);cpu.sp=(cpu.sp+1)&0xFFFF;const hi=rd(cpu.sp);cpu.sp=(cpu.sp+1)&0xFFFF;return ((hi<<8)|lo)&0xFFFF;}
+function psw(){return (cpu.fs<<7)|(cpu.fz<<6)|(cpu.fac<<4)|(cpu.fp<<2)|2|cpu.fcy;}
+function setPsw(v){cpu.fs=(v>>7)&1;cpu.fz=(v>>6)&1;cpu.fac=(v>>4)&1;cpu.fp=(v>>2)&1;cpu.fcy=v&1;}
+function testCC(cc){
+  switch(cc){case 0:return !cpu.fz;case 1:return !!cpu.fz;case 2:return !cpu.fcy;case 3:return !!cpu.fcy;
+    case 4:return !cpu.fp;case 5:return !!cpu.fp;case 6:return !cpu.fs;default:return !!cpu.fs;}
+}
+
+function step(){
+  if(cpu.halted)return false;
+  const op=rd(cpu.pc);
+  cpu.pc=(cpu.pc+1)&0xFFFF;
+  const imm8=()=>{const v=rd(cpu.pc);cpu.pc=(cpu.pc+1)&0xFFFF;return v;};
+  const imm16=()=>{const lo=rd(cpu.pc);const hi=rd((cpu.pc+1)&0xFFFF);cpu.pc=(cpu.pc+2)&0xFFFF;return ((hi<<8)|lo)&0xFFFF;};
+  let t=4;
+
+  if(op===0x76){cpu.halted=true;t=5;}
+  else if(op>=0x40&&op<=0x7F){                      // MOV
+    const d=(op>>3)&7,s=op&7;
+    setR(d,getR(s)); t=(d===6||s===6)?7:4;
+  }
+  else if(op>=0x80&&op<=0xBF){                      // ALU r
+    const k=(op>>3)&7,s=op&7,v=getR(s); t=(s===6)?7:4;
+    aluOp(k,v);
+  }
+  else if((op&0xC7)===0xC6){                        // ALU imm
+    aluOp((op>>3)&7,imm8()); t=7;
+  }
+  else if((op&0xC7)===0x04){cpu.fcyKeep=1; const r=(op>>3)&7,v=getR(r),n=(v+1)&0xFF; // INR
+    cpu.fac=((v&0x0F)+1)>0x0F?1:0; szp(n); setR(r,n); t=(r===6)?10:4;}
+  else if((op&0xC7)===0x05){const r=(op>>3)&7,v=getR(r),n=(v-1)&0xFF;                // DCR
+    cpu.fac=((v&0x0F)+0x0F)>0x0F?1:0; szp(n); setR(r,n); t=(r===6)?10:4;}
+  else if((op&0xC7)===0x06){const r=(op>>3)&7; setR(r,imm8()); t=(r===6)?10:7;}      // MVI
+  else if((op&0xCF)===0x01){const v=imm16(); setRP(op>>4,v); t=10;}                  // LXI
+  else if((op&0xCF)===0x03){const p=(op>>4)&3; setRP(p,(getRP(p)+1)&0xFFFF); t=6;}   // INX
+  else if((op&0xCF)===0x0B){const p=(op>>4)&3; setRP(p,(getRP(p)-1)&0xFFFF); t=6;}   // DCX
+  else if((op&0xCF)===0x09){const r=HL()+getRP((op>>4)&3);                            // DAD
+    cpu.fcy=r>0xFFFF?1:0; setHL(r&0xFFFF); t=10;}
+  else if((op&0xEF)===0x02){const a=((op&0x10)?DE():BC()); wr(a,cpu.a); t=7;}         // STAX
+  else if((op&0xEF)===0x0A){const a=((op&0x10)?DE():BC()); cpu.a=rd(a); t=7;}         // LDAX
+  else if((op&0xCF)===0xC5){const p=(op>>4)&3;                                        // PUSH
+    push16(p===3?((cpu.a<<8)|psw()):getRP(p)); t=12;}
+  else if((op&0xCF)===0xC1){const p=(op>>4)&3,v=pop16();                              // POP
+    if(p===3){cpu.a=(v>>8)&0xFF;setPsw(v&0xFF);}else setRP(p,v); t=10;}
+  else if((op&0xC7)===0xC2){const a=imm16(); if(testCC((op>>3)&7))cpu.pc=a; t=10;}    // Jcc
+  else if((op&0xC7)===0xC4){const a=imm16();                                          // Ccc
+    if(testCC((op>>3)&7)){push16(cpu.pc);cpu.pc=a;t=18;}else t=9;}
+  else if((op&0xC7)===0xC0){if(testCC((op>>3)&7)){cpu.pc=pop16();t=12;}else t=6;}      // Rcc
+  else if((op&0xC7)===0xC7){push16(cpu.pc);cpu.pc=(op&0x38);t=12;}                    // RST
+  else switch(op){
+    case 0x00: t=4; break;                                                            // NOP
+    case 0xC3: cpu.pc=imm16(); t=10; break;                                           // JMP
+    case 0xCD: {const a=imm16(); push16(cpu.pc); cpu.pc=a; t=18; break;}              // CALL
+    case 0xC9: cpu.pc=pop16(); t=10; break;                                           // RET
+    case 0x32: wr(imm16(),cpu.a); t=13; break;                                        // STA
+    case 0x3A: cpu.a=rd(imm16()); t=13; break;                                        // LDA
+    case 0x22: {const a=imm16(); wr(a,cpu.l); wr(a+1,cpu.h); t=16; break;}            // SHLD
+    case 0x2A: {const a=imm16(); cpu.l=rd(a); cpu.h=rd(a+1); t=16; break;}            // LHLD
+    case 0xEB: {const th=cpu.h,tl=cpu.l; cpu.h=cpu.d;cpu.l=cpu.e; cpu.d=th;cpu.e=tl; t=4; break;} // XCHG
+    case 0xE3: {const lo=rd(cpu.sp),hi=rd((cpu.sp+1)&0xFFFF);                          // XTHL
+      wr(cpu.sp,cpu.l); wr((cpu.sp+1)&0xFFFF,cpu.h); cpu.l=lo;cpu.h=hi; t=16; break;}
+    case 0xF9: cpu.sp=HL(); t=6; break;                                               // SPHL
+    case 0xE9: cpu.pc=HL(); t=6; break;                                               // PCHL
+    case 0x07: {const b=(cpu.a>>7)&1; cpu.a=((cpu.a<<1)|b)&0xFF; cpu.fcy=b; t=4; break;}   // RLC
+    case 0x0F: {const b=cpu.a&1; cpu.a=((cpu.a>>1)|(b<<7))&0xFF; cpu.fcy=b; t=4; break;}   // RRC
+    case 0x17: {const b=(cpu.a>>7)&1; cpu.a=((cpu.a<<1)|cpu.fcy)&0xFF; cpu.fcy=b; t=4; break;} // RAL
+    case 0x1F: {const b=cpu.a&1; cpu.a=((cpu.a>>1)|(cpu.fcy<<7))&0xFF; cpu.fcy=b; t=4; break;} // RAR
+    case 0x2F: cpu.a=(~cpu.a)&0xFF; t=4; break;                                       // CMA
+    case 0x37: cpu.fcy=1; t=4; break;                                                 // STC
+    case 0x3F: cpu.fcy=cpu.fcy?0:1; t=4; break;                                       // CMC
+    case 0x27: {                                                                      // DAA
+      let a=cpu.a, add=0, cy=cpu.fcy;
+      if((a&0x0F)>9||cpu.fac) add|=0x06;
+      if((a>>4)>9||cy||(((a>>4)>=9)&&((a&0x0F)>9))) {add|=0x60;cy=1;}
+      const lowc=((a&0x0F)+(add&0x0F))>0x0F?1:0;
+      a=(a+add)&0xFF;
+      cpu.fac=lowc; cpu.fcy=cy; szp(a); cpu.a=a; t=4; break;
+    }
+    case 0xDB: cpu.a=PORTS[imm8()]; t=10; break;                                      // IN
+    case 0xD3: {const p=imm8(); PORTS[p]=cpu.a; lastOut={p,v:cpu.a}; t=10; break;}    // OUT
+    case 0xFB: case 0xF3: t=4; break;                                                 // EI / DI
+    case 0x20: cpu.a=0x00; t=4; break;                                                // RIM
+    case 0x30: t=4; break;                                                            // SIM
+    default:
+      cpu.halted=true;
+      throw new Error("Unknown opcode "+hex2(op)+"H at "+hex4((cpu.pc-1)&0xFFFF)+"H");
+  }
+  cpu.instr++; cpu.tstates+=t;
+  return !cpu.halted;
+}
+function aluOp(k,v){
+  switch(k){
+    case 0: addA(v,0,true); break;
+    case 1: addA(v,cpu.fcy,true); break;
+    case 2: subA(v,0,true); break;
+    case 3: subA(v,cpu.fcy,true); break;
+    case 4: {const r=cpu.a&v; cpu.fac=((cpu.a|v)&0x08)?1:0; cpu.fcy=0; szp(r); cpu.a=r; break;}
+    case 5: {const r=cpu.a^v; cpu.fac=0; cpu.fcy=0; szp(r); cpu.a=r; break;}
+    case 6: {const r=cpu.a|v; cpu.fac=0; cpu.fcy=0; szp(r); cpu.a=r; break;}
+    default: subA(v,0,false);
+  }
+}
+function getRP(p){return p===0?BC():p===1?DE():p===2?HL():cpu.sp;}
+function setRP(p,v){
+  p&=3; v&=0xFFFF;
+  if(p===0){cpu.b=(v>>8)&0xFF;cpu.c=v&0xFF;}
+  else if(p===1){cpu.d=(v>>8)&0xFF;cpu.e=v&0xFF;}
+  else if(p===2){setHL(v);}
+  else cpu.sp=v;
+}
+
+
+
+function escapeHtml(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+/* ============================================================
+   SEVEN-SEGMENT DISPLAY
+   ============================================================ */
+const SEG={
+  "0":"abcdef","1":"bc","2":"abdeg","3":"abcdg","4":"bcfg","5":"acdfg","6":"acdefg","7":"abc",
+  "8":"abcdefg","9":"abcdfg","A":"abcefg","B":"cdefg","C":"adef","D":"bcdeg","E":"adefg","F":"aefg",
+  "-":"g"," ":"","_":"d",
+  "H":"bcefg","L":"def","P":"abefg","R":"eg","N":"ceg","O":"cdeg","T":"defg","U":"bcdef",
+  "G":"acdef","I":"ef","S":"acdfg","Y":"bcdfg","J":"bcd"
+};
+function segPoly(type,x1,y1,x2,y2,t){
+  const h=t/2;
+  if(type==="h") return [[x1,y1],[x1+h,y1-h],[x2-h,y1-h],[x2,y1],[x2-h,y1+h],[x1+h,y1+h]].map(p=>p.join(",")).join(" ");
+  return [[x1,y1],[x1+h,y1+h],[x1+h,y2-h],[x1,y2],[x1-h,y2-h],[x1-h,y1+h]].map(p=>p.join(",")).join(" ");
+}
+function buildDigits(){
+  const box=document.getElementById("digits");
+  let html='<div class="grp">';
+  for(let i=0;i<6;i++){
+    if(i===4) html+='</div><div class="grp">';
+    const t=9,L=13,R=47,TP=11,MD=53,BT=95;
+    html+='<div class="digit"><svg viewBox="-6 0 72 106" role="img" aria-hidden="true"><g transform="skewX(-5)">'+
+      '<polygon class="seg" data-d="'+i+'" data-s="a" points="'+segPoly("h",L,TP,R,TP,t)+'"/>'+
+      '<polygon class="seg" data-d="'+i+'" data-s="b" points="'+segPoly("v",R,TP,R,MD,t)+'"/>'+
+      '<polygon class="seg" data-d="'+i+'" data-s="c" points="'+segPoly("v",R,MD,R,BT,t)+'"/>'+
+      '<polygon class="seg" data-d="'+i+'" data-s="d" points="'+segPoly("h",L,BT,R,BT,t)+'"/>'+
+      '<polygon class="seg" data-d="'+i+'" data-s="e" points="'+segPoly("v",L,MD,L,BT,t)+'"/>'+
+      '<polygon class="seg" data-d="'+i+'" data-s="f" points="'+segPoly("v",L,TP,L,MD,t)+'"/>'+
+      '<polygon class="seg" data-d="'+i+'" data-s="g" points="'+segPoly("h",L,MD,R,MD,t)+'"/>'+
+      '</g></svg></div>';
+  }
+  box.innerHTML=html+'</div>';
+}
+let curShow="      ";
+function show(text){
+  const s=(text+"      ").slice(0,6).toUpperCase();
+  curShow=s;
+  for(let i=0;i<6;i++){
+    const on=SEG[s[i]]!==undefined?SEG[s[i]]:"";
+    document.querySelectorAll('[data-d="'+i+'"]').forEach(p=>{
+      p.classList.toggle("on", on.indexOf(p.dataset.s)>=0);
+    });
+  }
+}
+
+/* ============================================================
+   KEYPAD
+   ============================================================ */
+const KEYS=[
+  {k:"C",sub:"reg C"},{k:"D",sub:"reg D"},{k:"E",sub:"reg E"},{k:"F",sub:"flags"},{k:"EXMEM",t:"cmd",sub:"memory"},{k:"GO",t:"cmd",sub:"execute from"},
+  {k:"8",sub:"reg H"},{k:"9",sub:"reg L"},{k:"A",sub:"reg A"},{k:"B",sub:"reg B"},{k:"EXREG",t:"cmd",sub:"registers"},{k:"EXEC",t:"cmd",sub:"fill / run"},
+  {k:"4"},{k:"5"},{k:"6"},{k:"7"},{k:"NEXT",t:"nav",sub:"store & +1"},{k:"SI",t:"nav",sub:"one step"},
+  {k:"0",sub:"SP"},{k:"1",sub:"PC"},{k:"2"},{k:"3"},{k:"PREV",t:"nav",sub:"store & −1"},{k:"RESET",t:"cmd",sub:"monitor"}
+];
+const LABEL={EXMEM:"EX MEM",EXREG:"EX REG",EXEC:"EXEC",RESET:"RESET",NEXT:"NEXT",PREV:"PREV",GO:"GO",SI:"SI"};
+function buildKeys(){
+  const box=document.getElementById("keys");
+  box.innerHTML=KEYS.map(k=>
+    '<button class="key '+(k.t||"")+'" data-k="'+k.k+'" type="button">'+
+    '<span class="main">'+(LABEL[k.k]||k.k)+'</span>'+
+    (k.sub?'<span class="sub">'+k.sub+'</span>':'')+'</button>').join("");
+  box.querySelectorAll(".key").forEach(b=>b.addEventListener("click",()=>press(b.dataset.k)));
+}
+
+/* ============================================================
+   MONITOR  (the kit's firmware)
+   ============================================================ */
+const MODE={IDLE:"IDLE",MEM_ADDR:"MEM_ADDR",MEM_DATA:"MEM_DATA",REG_SEL:"REG_SEL",REG_SHOW:"REG_SHOW",
+  GO_ADDR:"GO_ADDR",RUN:"RUN",HALT:"HALT",ERR:"ERR"};
+let mode=MODE.IDLE, addrBuf=0, addrLen=0, dataBuf=0, dataLen=0, curAddr=0, regIdx=0, runTimer=null;
+
+const REGLIST=[
+  {k:"A",name:"A", get:()=>cpu.a,   set:v=>cpu.a=v,   w:2},
+  {k:"B",name:"B", get:()=>cpu.b,   set:v=>cpu.b=v,   w:2},
+  {k:"C",name:"C", get:()=>cpu.c,   set:v=>cpu.c=v,   w:2},
+  {k:"D",name:"D", get:()=>cpu.d,   set:v=>cpu.d=v,   w:2},
+  {k:"E",name:"E", get:()=>cpu.e,   set:v=>cpu.e=v,   w:2},
+  {k:"F",name:"F", get:()=>psw(),   set:v=>setPsw(v), w:2},
+  {k:"8",name:"H", get:()=>cpu.h,   set:v=>cpu.h=v,   w:2},
+  {k:"9",name:"L", get:()=>cpu.l,   set:v=>cpu.l=v,   w:2},
+  {k:"0",name:"SP",get:()=>cpu.sp,  set:v=>cpu.sp=v,  w:4},
+  {k:"1",name:"PC",get:()=>cpu.pc,  set:v=>cpu.pc=v,  w:4}
+];
+const isHex=k=>/^[0-9A-F]$/.test(k);
+const h2=v=>v.toString(16).toUpperCase().padStart(2,"0");
+const h4=v=>v.toString(16).toUpperCase().padStart(4,"0");
+
+function note(html){document.getElementById("kitNote").innerHTML=html;}
+
+function drawMem(){ show(h4(curAddr)+h2(MEM[curAddr])); }
+function drawAddrEntry(){
+  const digits=addrLen?h4(addrBuf).slice(4-addrLen):"";
+  show(digits.padStart(4," ")+"  ");
+}
+function drawReg(){
+  const r=REGLIST[regIdx], v=r.get()&(r.w===4?0xFFFF:0xFF);
+  show(r.w===4 ? r.name.padEnd(2," ")+h4(v) : r.name.padEnd(4," ")+h2(v));
+}
+
+function press(k){
+  const btn=document.querySelector('.key[data-k="'+k+'"]');
+  if(btn){btn.classList.add("down");setTimeout(()=>btn.classList.remove("down"),90);}
+  tape(k);
+  guideSaw(k);
+
+  if(k==="RESET"){
+    stopRun(); mode=MODE.IDLE; addrBuf=addrLen=dataBuf=dataLen=0;
+    show("-8085-");
+    note("Monitor ready. <b>EX MEM</b> to enter or read memory, <b>GO</b> to run, <b>EX REG</b> for registers.");
+    refreshPeek(); return;
+  }
+  if(mode===MODE.RUN) return;               // keypad is dead while the program runs
+
+  switch(k){
+    case "EXMEM":
+      mode=MODE.MEM_ADDR; addrBuf=0; addrLen=0; show("        ");
+      note("Type the <b>4-digit address</b>, then press <b>NEXT</b>."); break;
+
+    case "EXREG":
+      mode=MODE.REG_SEL; show("REG   ");
+      note("Press a register key — A–F, 8 for H, 9 for L, 0 for SP, 1 for PC."); break;
+
+    case "GO":
+      mode=MODE.GO_ADDR; addrBuf=0; addrLen=0; show("GO    ");
+      note("Type the <b>start address</b>, then press <b>EXEC</b> to run or <b>SI</b> to step."); break;
+
+    case "EXEC":
+      if(mode===MODE.GO_ADDR&&addrLen){ cpuSetPC(addrBuf); startRun(); }
+      else note("EXEC only does something after <b>GO</b> and an address.");
+      break;
+
+    case "SI":
+      if(mode===MODE.GO_ADDR&&addrLen) cpuSetPC(addrBuf);
+      doStepOne(); break;
+
+    case "NEXT":
+      if(mode===MODE.MEM_ADDR&&addrLen){ curAddr=addrBuf&0xFFFF; mode=MODE.MEM_DATA; dataLen=0; drawMem();
+        note("Type two hex digits to store a byte, then <b>NEXT</b> for the following address."); }
+      else if(mode===MODE.MEM_DATA){ commitByte(); curAddr=(curAddr+1)&0xFFFF; dataLen=0; drawMem(); refreshPeek(); }
+      else if(mode===MODE.REG_SHOW||mode===MODE.REG_SEL){ regIdx=(regIdx+1)%REGLIST.length; mode=MODE.REG_SHOW; dataLen=0; drawReg(); }
+      else note("Press <b>EX MEM</b> or <b>GO</b> first — NEXT only moves once a location is open.");
+      break;
+
+    case "PREV":
+      if(mode===MODE.MEM_DATA){ commitByte(); curAddr=(curAddr-1)&0xFFFF; dataLen=0; drawMem(); refreshPeek(); }
+      else if(mode===MODE.REG_SHOW){ regIdx=(regIdx-1+REGLIST.length)%REGLIST.length; dataLen=0; drawReg(); }
+      break;
+
+    default:
+      if(!isHex(k)) return;
+      const v=parseInt(k,16);
+      if(mode===MODE.MEM_ADDR||mode===MODE.GO_ADDR){
+        addrBuf=((addrBuf<<4)|v)&0xFFFF; addrLen=Math.min(addrLen+1,4);
+        drawAddrEntry();
+      }
+      else if(mode===MODE.MEM_DATA){
+        dataBuf=dataLen>=2?v:(((dataLen?dataBuf:0)<<4)|v)&0xFF;
+        dataLen=dataLen>=2?1:dataLen+1;
+        show(h4(curAddr)+h2(dataBuf));
+      }
+      else if(mode===MODE.REG_SEL){
+        const i=REGLIST.findIndex(r=>r.k===k);
+        if(i<0){ note("That key is not a register. Try A–F, 8, 9, 0 or 1."); return; }
+        regIdx=i; mode=MODE.REG_SHOW; dataLen=0; drawReg();
+        note("<b>NEXT</b> and <b>PREV</b> walk through the other registers.");
+      }
+      else if(mode===MODE.IDLE||mode===MODE.HALT){
+        note("Press a command key first — <b>EX MEM</b>, <b>EX REG</b> or <b>GO</b>.");
+      }
+  }
+}
+function commitByte(){ if(dataLen){ MEM[curAddr]=dataBuf&0xFF; touched.add(curAddr); } }
+function cpuSetPC(a){ cpu.pc=a&0xFFFF; cpu.halted=false; }
+
+function doStepOne(){
+  if(cpu.halted){ note("The processor has halted. Press <b>RESET</b>, then <b>GO</b> again."); return; }
+  try{ step(); }
+  catch(e){ mode=MODE.ERR; show("ERR   "); note("Bad opcode: "+e.message); return; }
+  mode=MODE.MEM_DATA; curAddr=cpu.pc; dataLen=0;
+  if(cpu.halted){ mode=MODE.HALT; show("HLT   "); note("<b>HLT</b> reached. Press <b>RESET</b>, then <b>EX MEM</b> to read your results."); }
+  else { drawMem(); note("One instruction done. Display shows the next address and the opcode waiting there."); }
+  refreshPeek();
+}
+function startRun(){
+  mode=MODE.RUN; show("      ");
+  note("Running… the display is blank while the processor has the bus, just like the real kit.");
+  let n=0, blink=0;
+  const tick=()=>{
+    if(mode!==MODE.RUN) return;
+    try{
+      for(let i=0;i<40000;i++){
+        if(!step()){
+          mode=MODE.HALT; show("HLT   "); refreshPeek();
+          note("<b>HLT</b> reached after "+cpu.instr.toLocaleString()+" instructions. Press <b>RESET</b>, then <b>EX MEM</b> to read your results.");
+          return;
+        }
+        if(++n>6000000){
+          mode=MODE.ERR; show("LOOP  "); refreshPeek();
+          note("Stopped — the program ran six million instructions without reaching <b>HLT</b>. It is stuck in a loop.");
+          return;
+        }
+      }
+    }catch(e){ mode=MODE.ERR; show("ERR   "); note("Bad opcode: "+e.message); return; }
+    show((blink++%2)?"      ":"-    -");
+    runTimer=setTimeout(tick,40);
+  };
+  tick();
+}
+function stopRun(){ if(runTimer){clearTimeout(runTimer);runTimer=null;} }
+
+/* keystroke tape */
+const tapeKeys=[];
+function tape(k){
+  tapeKeys.push(k); if(tapeKeys.length>60) tapeKeys.shift();
+  const box=document.getElementById("tape");
+  box.innerHTML=tapeKeys.map(x=>'<span class="t'+(isHex(x)?"":" c")+'">'+(LABEL[x]||x)+'</span>').join("");
+  box.scrollLeft=box.scrollWidth;
+}
+document.getElementById("bTapeClr").onclick=()=>{tapeKeys.length=0;
+  document.getElementById("tape").innerHTML='<span class="ph">Keys you press appear here</span>';};
+
+/* physical keyboard */
+document.addEventListener("keydown",e=>{
+  if(/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))return;
+  const K=e.key.toUpperCase();
+  let k=null;
+  if(/^[0-9A-F]$/.test(K)) k=K;
+  else if(e.key==="Enter") k="NEXT";
+  else if(e.key==="Backspace") k="PREV";
+  else if(e.key==="Escape") k="RESET";
+  else if(K==="M") k="EXMEM";
+  else if(K==="R") k="EXREG";
+  else if(K==="G") k="GO";
+  else if(K==="X") k="EXEC";
+  else if(K==="S") k="SI";
+  if(k){e.preventDefault();press(k);}
+});
+
+/* ============================================================
+   GUIDE ME
+   ============================================================ */
+let guide=null;
+function guideSaw(k){
+  if(!guide) return;
+  if(guide.steps[guide.i]&&guide.steps[guide.i].k===k){
+    guide.i++;
+    if(guide.i>=guide.steps.length){ guide=null; clearHint(); renderTask(); return; }
+  }
+  paintHint();
+}
+function clearHint(){document.querySelectorAll(".key.hint").forEach(b=>b.classList.remove("hint"));}
+function paintHint(){
+  clearHint();
+  if(!guide) return;
+  const s=guide.steps[guide.i]; if(!s) return;
+  const b=document.querySelector('.key[data-k="'+s.k+'"]'); if(b) b.classList.add("hint");
+  document.getElementById("bGuide").textContent="Guiding — step "+(guide.i+1)+" of "+guide.steps.length;
+}
+function startGuide(){
+  const t=TASKS[curTask];
+  const steps=[{k:"RESET"},{k:"EXMEM"}];
+  for(const d of h4(t.start)) steps.push({k:d});
+  steps.push({k:"NEXT"});
+  const img=taskImage(t);
+  for(const [addr,b] of img){ const s=h2(b); steps.push({k:s[0]},{k:s[1]},{k:"NEXT"}); }
+  for(const a of Object.keys(t.inputs).map(Number).sort((x,y)=>x-y)){
+    steps.push({k:"EXMEM"});
+    for(const d of h4(a)) steps.push({k:d});
+    steps.push({k:"NEXT"});
+    const s=h2(t.inputs[a]); steps.push({k:s[0]},{k:s[1]},{k:"NEXT"});
+  }
+  steps.push({k:"RESET"},{k:"GO"});
+  for(const d of h4(t.start)) steps.push({k:d});
+  steps.push({k:"EXEC"});
+  guide={steps,i:0}; paintHint();
+  document.getElementById("bGuide").setAttribute("aria-pressed","true");
+}
+document.getElementById("bGuide").onclick=()=>{
+  const b=document.getElementById("bGuide");
+  if(guide){ guide=null; clearHint(); b.textContent="Guide me"; b.setAttribute("aria-pressed","false"); }
+  else startGuide();
+};
+
+/* ============================================================
+   EXERCISES
+   ============================================================ */
+const TASKS=[
+{ name:"Add two 8-bit numbers", start:0x2000,
+  stmt:"Add the bytes at 2050H and 2051H. Sum goes to 2052H, carry to 2053H.",
+  src:`        LXI  H, 2050H
+        MOV  A, M
+        INX  H
+        ADD  M
+        INX  H
+        MOV  M, A
+        MVI  A, 00H
+        ACI  00H
+        INX  H
+        MOV  M, A
+        HLT`,
+  inputs:{0x2050:0x9C,0x2051:0xA7},
+  out:i=>{const s=i[0x2050]+i[0x2051];return [[0x2052,s&0xFF,"sum"],[0x2053,s>0xFF?1:0,"carry"]];} },
+
+{ name:"Subtract two 8-bit numbers", start:0x2000,
+  stmt:"Subtract the byte at 2051H from the one at 2050H. Difference to 2052H, borrow to 2053H.",
+  src:`        LXI  H, 2050H
+        MOV  A, M
+        INX  H
+        SUB  M
+        INX  H
+        MOV  M, A
+        MVI  A, 00H
+        ACI  00H
+        INX  H
+        MOV  M, A
+        HLT`,
+  inputs:{0x2050:0x42,0x2051:0x7B},
+  out:i=>{const d=i[0x2050]-i[0x2051];return [[0x2052,d&0xFF,"difference"],[0x2053,d<0?1:0,"borrow"]];} },
+
+{ name:"Largest number in a block", start:0x2000,
+  stmt:"2050H holds the count. The data follows from 2051H. Put the largest value in 2060H.",
+  src:`        LXI  H, 2050H
+        MOV  C, M
+        INX  H
+        MOV  A, M
+        DCR  C
+        JZ   DONE
+LOOP:   INX  H
+        CMP  M
+        JNC  SKIP
+        MOV  A, M
+SKIP:   DCR  C
+        JNZ  LOOP
+DONE:   STA  2060H
+        HLT`,
+  inputs:{0x2050:0x05,0x2051:0x3A,0x2052:0x9F,0x2053:0x12,0x2054:0x7C,0x2055:0x64},
+  out:i=>{const n=i[0x2050];let m=0;for(let k=0;k<n;k++)m=Math.max(m,i[0x2051+k]);return [[0x2060,m,"largest"]];} },
+
+{ name:"Sum of a block of bytes", start:0x2000,
+  stmt:"2050H holds the count, data from 2051H. 16-bit sum goes to 2060H (low) and 2061H (high).",
+  src:`        LXI  H, 2050H
+        MOV  C, M
+        MVI  B, 00H
+        XRA  A
+        INX  H
+LOOP:   ADD  M
+        JNC  NOCY
+        INR  B
+NOCY:   INX  H
+        DCR  C
+        JNZ  LOOP
+        STA  2060H
+        MOV  A, B
+        STA  2061H
+        HLT`,
+  inputs:{0x2050:0x04,0x2051:0xA1,0x2052:0xB2,0x2053:0xC3,0x2054:0xD4},
+  out:i=>{const n=i[0x2050];let s=0;for(let k=0;k<n;k++)s+=i[0x2051+k];
+    return [[0x2060,s&0xFF,"sum low"],[0x2061,(s>>8)&0xFF,"sum high"]];} },
+
+{ name:"Block transfer", start:0x2000,
+  stmt:"2050H holds the count. Copy that many bytes from 2051H onward to 2060H onward.",
+  src:`        LXI  H, 2050H
+        MOV  C, M
+        INX  H
+        LXI  D, 2060H
+LOOP:   MOV  A, M
+        STAX D
+        INX  H
+        INX  D
+        DCR  C
+        JNZ  LOOP
+        HLT`,
+  inputs:{0x2050:0x05,0x2051:0x11,0x2052:0x22,0x2053:0x33,0x2054:0x44,0x2055:0x55},
+  out:i=>{const n=i[0x2050],o=[];for(let k=0;k<n;k++)o.push([0x2060+k,i[0x2051+k],"byte "+(k+1)]);return o;} },
+
+{ name:"Count the 1s in a byte", start:0x2000,
+  stmt:"Count the bits set in the byte at 2050H and store the count at 2051H.",
+  src:`        LDA  2050H
+        MVI  B, 08H
+        MVI  C, 00H
+LOOP:   RRC
+        JNC  SKIP
+        INR  C
+SKIP:   DCR  B
+        JNZ  LOOP
+        MOV  A, C
+        STA  2051H
+        HLT`,
+  inputs:{0x2050:0xB7},
+  out:i=>{let v=i[0x2050],n=0;for(let k=0;k<8;k++)if(v&(1<<k))n++;return [[0x2051,n,"count of 1s"]];} },
+
+{ name:"Multiply by repeated addition", start:0x2000,
+  stmt:"Multiply the bytes at 2050H and 2051H. 16-bit product to 2052H (low) and 2053H (high).",
+  src:`        LXI  H, 2050H
+        MOV  E, M
+        MVI  D, 00H
+        INX  H
+        MOV  C, M
+        LXI  H, 0000H
+        MOV  A, C
+        ORA  A
+        JZ   DONE
+LOOP:   DAD  D
+        DCR  C
+        JNZ  LOOP
+DONE:   SHLD 2052H
+        HLT`,
+  inputs:{0x2050:0x1A,0x2051:0x0C},
+  out:i=>{const p=i[0x2050]*i[0x2051];return [[0x2052,p&0xFF,"product low"],[0x2053,(p>>8)&0xFF,"product high"]];} },
+
+{ name:"Sort a block in ascending order", start:0x2000,
+  stmt:"2050H holds the count. Sort that many bytes from 2051H into ascending order, in place.",
+  src:`        LDA  2050H
+        DCR  A
+        JZ   DONE
+        MOV  B, A
+OUTER:  MOV  C, B
+        LXI  H, 2051H
+INNER:  MOV  A, M
+        INX  H
+        CMP  M
+        JC   NEXT
+        JZ   NEXT
+        MOV  D, M
+        MOV  M, A
+        DCX  H
+        MOV  M, D
+        INX  H
+NEXT:   DCR  C
+        JNZ  INNER
+        DCR  B
+        JNZ  OUTER
+DONE:   HLT`,
+  inputs:{0x2050:0x05,0x2051:0x7A,0x2052:0x21,0x2053:0xF0,0x2054:0x08,0x2055:0x55},
+  out:i=>{const n=i[0x2050],d=[];for(let k=0;k<n;k++)d.push(i[0x2051+k]);d.sort((a,b)=>a-b);
+    return d.map((v,k)=>[0x2051+k,v,"position "+(k+1)]);} }
+];
+
+/* ---- lab assignments, transcribed from the handwritten record ---- */
+/* ============================================================
+   LAB ASSIGNMENTS  —  transcribed from the handwritten record
+   check entries:  {at:addr, v:byte, w:"label"}  |  {reg:"E", v:byte, w:"label"}
+   ============================================================ */
+const ASSIGN=[
+{ set:"Assignment 1", no:1, org:0x8000, id:"a1q1",
+  title:"Add two registers, subtract 03H, keep it in E",
+  q:"Write an assembly level program to place 7AH in register D and 63H in register C. Add the two numbers and transfer the result to register H. Subtract 03H from the result and store the final result in register E.",
+  hint:"The program supplies its own data — nothing has to be in memory first. Everything is checked in the registers.",
+  inputs:{},
+  checks:[{reg:"D",v:0x7A,w:"first number"},{reg:"C",v:0x63,w:"second number"},
+          {reg:"H",v:0xDD,w:"sum 7A+63"},{reg:"E",v:0xDA,w:"final result"}],
+  sol:`        ORG  8000H
+
+        MVI  D, 7AH      ; first number
+        MVI  C, 63H      ; second number
+        MOV  A, D
+        ADD  C           ; A = 7A + 63 = DD
+        MOV  H, A        ; keep the sum in H
+        SUI  03H         ; DD - 03 = DA
+        MOV  E, A        ; final result in E
+        RST  3` },
+
+{ set:"Assignment 1", no:2, org:0x8000, id:"a1q2",
+  title:"Fill 20 bytes with natural numbers",
+  q:"Fill the 20 bytes of memory starting from 9250H with natural numbers in increasing order (00H in 9250H, 01H in 9251H and so on).",
+  hint:"20 decimal is 14H — that is the counter value, not 20H.",
+  inputs:{},
+  checks:[{at:0x9250,v:0x00,w:"first"},{at:0x9251,v:0x01,w:"second"},{at:0x9259,v:0x09,w:"tenth"},
+          {at:0x9263,v:0x13,w:"twentieth"},{at:0x9264,v:0x00,w:"must stay untouched"}],
+  sol:`        ORG  8000H
+
+        MVI  C, 14H      ; 20 locations
+        LXI  H, 9250H
+        MVI  A, 00H
+LOOP:   MOV  M, A
+        INR  A
+        INX  H
+        DCR  C
+        JNZ  LOOP
+        RST  3` },
+
+{ set:"Assignment 1", no:3, org:0x8000, id:"a1q3",
+  title:"AP series of 8 terms, common difference 2",
+  q:"Write an assembly language program to generate an AP series of 8 terms with common difference 2, and store the series in memory locations starting from 9450H. The first term is 01H.",
+  inputs:{},
+  checks:[{at:0x9450,v:0x01,w:"term 1"},{at:0x9451,v:0x03,w:"term 2"},{at:0x9452,v:0x05,w:"term 3"},
+          {at:0x9453,v:0x07,w:"term 4"},{at:0x9454,v:0x09,w:"term 5"},{at:0x9455,v:0x0B,w:"term 6"},
+          {at:0x9456,v:0x0D,w:"term 7"},{at:0x9457,v:0x0F,w:"term 8"},{at:0x9458,v:0x00,w:"nothing past the 8th"}],
+  sol:`        ORG  8000H
+
+        MVI  C, 08H      ; 8 terms
+        LXI  H, 9450H
+        MVI  A, 01H      ; first term
+LOOP:   MOV  M, A
+        ADI  02H         ; common difference
+        INX  H
+        DCR  C
+        JNZ  LOOP
+        RST  3` },
+
+{ set:"Assignment 1", no:4, org:0x8000, id:"a1q4",
+  title:"Store 24H in 80H successive locations",
+  q:"Store the number 24H in 80H successive memory locations, starting from 9500H.",
+  hint:"80H is 128 locations, so the block runs 9500H to 957FH.",
+  inputs:{},
+  checks:[{at:0x9500,v:0x24,w:"first"},{at:0x9540,v:0x24,w:"middle"},
+          {at:0x957F,v:0x24,w:"last (128th)"},{at:0x9580,v:0x00,w:"one past the block"}],
+  sol:`        ORG  8000H
+
+        MVI  C, 80H      ; 128 locations
+        LXI  H, 9500H
+        MVI  A, 24H
+LOOP:   MOV  M, A
+        INX  H
+        DCR  C
+        JNZ  LOOP
+        HLT` },
+
+{ set:"Assignment 2", no:1, org:0x8000, id:"a2q1",
+  title:"GP series of 8 terms, common ratio 2",
+  q:"Write an assembly language program to generate a GP series of 8 terms with common factor 2, and store the values in memory locations starting from 9000H. The first term is 01H.",
+  hint:"ADD A doubles the accumulator — that is the whole multiplication.",
+  inputs:{},
+  checks:[{at:0x9000,v:0x01,w:"term 1"},{at:0x9001,v:0x02,w:"term 2"},{at:0x9002,v:0x04,w:"term 3"},
+          {at:0x9003,v:0x08,w:"term 4"},{at:0x9004,v:0x10,w:"term 5"},{at:0x9005,v:0x20,w:"term 6"},
+          {at:0x9006,v:0x40,w:"term 7"},{at:0x9007,v:0x80,w:"term 8"}],
+  sol:`        ORG  8000H
+
+        MVI  A, 01H      ; first term
+        LXI  H, 9000H
+        MVI  C, 08H      ; 8 terms
+LOOP:   MOV  M, A
+        INX  H
+        ADD  A           ; double it
+        DCR  C
+        JNZ  LOOP
+        RST  3` },
+
+{ set:"Assignment 2", no:2, org:0x8000, id:"a2q2",
+  title:"Store 5 bytes, then copy the block in reverse",
+  q:"Store the 5 bytes 42H, ACH, B8H, 2FH and 10H in memory locations starting from 8220H to 8224H. Transfer the entire block of data to a new memory location starting from 9040H, in reverse order.",
+  hint:"Your program writes the five bytes itself, then walks the source backwards with DCX H while the destination goes forwards with INX D.",
+  inputs:{},
+  checks:[{at:0x8220,v:0x42,w:"source 1"},{at:0x8224,v:0x10,w:"source 5"},
+          {at:0x9040,v:0x10,w:"reversed 1"},{at:0x9041,v:0x2F,w:"reversed 2"},{at:0x9042,v:0xB8,w:"reversed 3"},
+          {at:0x9043,v:0xAC,w:"reversed 4"},{at:0x9044,v:0x42,w:"reversed 5"}],
+  sol:`        ORG  8000H
+
+        LXI  H, 8220H    ; lay the data down first
+        MVI  M, 42H
+        INX  H
+        MVI  M, 0ACH
+        INX  H
+        MVI  M, 0B8H
+        INX  H
+        MVI  M, 2FH
+        INX  H
+        MVI  M, 10H
+
+        LXI  H, 8224H    ; source: last byte
+        LXI  D, 9040H    ; destination: first byte
+        MVI  C, 05H
+LOOP:   MOV  A, M
+        STAX D
+        DCX  H           ; source walks backwards
+        INX  D           ; destination walks forwards
+        DCR  C
+        JNZ  LOOP
+        RST  3` },
+
+{ set:"Assignment 2", no:3, org:0x8000, id:"a2q3",
+  title:"2's complement of a number",
+  q:"Find the 2's complement of the number stored in memory location 9100H and observe the result in the accumulator.",
+  hint:"9100H already holds 37H. 2's complement is CMA followed by ADI 01H.",
+  inputs:{0x9100:0x37},
+  checks:[{reg:"A",v:0xC9,w:"2's complement of 37H"}],
+  sol:`        ORG  8000H
+
+        LDA  9100H
+        CMA              ; 1's complement
+        ADI  01H         ; + 1 makes it 2's complement
+        RST  3` },
+
+{ set:"Assignment 2", no:4, org:0x8000, id:"a2q4",
+  title:"Swap two memory locations",
+  q:"Store two 8-bit data in memory locations 9200H and 9210H respectively, then write an assembly language program to swap them. Use 82H and 10H as the two values.",
+  hint:"The accumulator can only hold one of them at a time, so park the other one in B.",
+  inputs:{},
+  checks:[{at:0x9200,v:0x10,w:"was 82H"},{at:0x9210,v:0x82,w:"was 10H"}],
+  sol:`        ORG  8000H
+
+        MVI  A, 82H      ; put the two values in place
+        STA  9200H
+        MVI  A, 10H
+        STA  9210H
+
+        LDA  9200H       ; now swap them
+        MOV  B, A
+        LDA  9210H
+        STA  9200H
+        MOV  A, B
+        STA  9210H
+        RST  3` },
+
+{ set:"Assignment 2", no:5, org:0x2000, id:"a2q5",
+  title:"Count the 1s in an 8-bit number",
+  q:"Find the number of 1s in an 8-bit number. The number is in 2050H; store the count in 2051H.",
+  hint:"RRC rotates bit 0 into the carry without dragging the old carry in — eight rotations bring the byte back to where it started.",
+  inputs:{0x2050:0xB7},
+  checks:[{at:0x2051,v:0x06,w:"B7H has six 1s"}],
+  sol:`        ORG  2000H
+
+        LDA  2050H
+        MVI  B, 00H      ; running count
+        MVI  C, 08H      ; 8 bits
+LOOP:   RRC
+        JNC  SKIP
+        INR  B
+SKIP:   DCR  C
+        JNZ  LOOP
+        MOV  A, B
+        STA  2051H
+        RST  3` },
+
+{ set:"Assignment 2", no:6, org:0x2000, id:"a2q6",
+  title:"Fibonacci series, 10 terms",
+  q:"Generate the Fibonacci series in decimal format up to 10 terms and place them in memory locations starting from 9300H.",
+  hint:"Write the first two terms straight out, then loop eight times — 10 terms in all.",
+  inputs:{},
+  checks:[{at:0x9300,v:0x00,w:"term 1"},{at:0x9301,v:0x01,w:"term 2"},{at:0x9302,v:0x01,w:"term 3"},
+          {at:0x9303,v:0x02,w:"term 4"},{at:0x9304,v:0x03,w:"term 5"},{at:0x9305,v:0x05,w:"term 6"},
+          {at:0x9306,v:0x08,w:"term 7"},{at:0x9307,v:0x0D,w:"term 8"},{at:0x9308,v:0x15,w:"term 9"},
+          {at:0x9309,v:0x22,w:"term 10"}],
+  sol:`        ORG  2000H
+
+        MVI  B, 00H      ; term n-1
+        MVI  C, 01H      ; term n
+        LXI  H, 9300H
+        MOV  M, B        ; write the first two terms
+        INX  H
+        MOV  M, C
+        MVI  D, 08H      ; eight more to go
+        INX  H
+LOOP:   MOV  A, B
+        ADD  C
+        MOV  B, C
+        MOV  C, A
+        MOV  M, C
+        INX  H
+        DCR  D
+        JNZ  LOOP
+        RST  3` },
+
+{ set:"Assignment 3", no:1, org:0x8000, id:"a3q1",
+  title:"Insert two bytes into a data string",
+  q:"Five data bytes 11H, 22H, 33H, 44H and 55H are stored in memory locations from 8600H. To insert two additional data bytes 66H and 77H it is necessary to shift the data string down by two memory locations. Write the program and find the output table.",
+  hint:"Shift from the far end first, otherwise you overwrite a byte before you have moved it. LHLD and SHLD move two bytes at a time.",
+  inputs:{0x8600:0x11,0x8601:0x22,0x8602:0x33,0x8603:0x44,0x8604:0x55},
+  checks:[{at:0x8600,v:0x11,w:"unchanged"},{at:0x8601,v:0x22,w:"unchanged"},{at:0x8602,v:0x33,w:"unchanged"},
+          {at:0x8603,v:0x66,w:"inserted"},{at:0x8604,v:0x77,w:"inserted"},
+          {at:0x8605,v:0x44,w:"shifted down"},{at:0x8606,v:0x55,w:"shifted down"}],
+  sol:`        ORG  8000H
+
+        LHLD 8604H       ; picks up 8604 and 8605
+        SHLD 8606H       ; drops them at 8606, 8607
+        LHLD 8603H
+        SHLD 8605H
+        LXI  H, 8603H    ; now the hole is open
+        MVI  M, 66H
+        INX  H
+        MVI  M, 77H
+        RST  3` },
+
+{ set:"Assignment 3", no:2, org:0x8000, id:"a3q2",
+  title:"Add six bytes into a 16-bit result",
+  q:"Six data bytes A2H, FAH, DFH, E5H, F9H and 98H are in memory locations starting from 8200H. Add all the data bytes, using register B to save any carry generated. Write the 16-bit result in memory locations 8291H (low byte) and 8292H (high byte).",
+  hint:"Every time ADD sets the carry, bump B. The sum of six bytes can overflow twice, so B is not just 0 or 1.",
+  inputs:{0x8200:0xA2,0x8201:0xFA,0x8202:0xDF,0x8203:0xE5,0x8204:0xF9,0x8205:0x98},
+  checks:[{at:0x8291,v:0xF1,w:"low byte of the sum"},{at:0x8292,v:0x04,w:"carries collected in B"}],
+  sol:`        ORG  8000H
+
+        LXI  H, 8200H
+        MVI  C, 05H      ; five ADDs after the first MOV
+        MVI  B, 00H      ; carry counter
+        MOV  A, M
+        INX  H
+LOOP:   ADD  M
+        JNC  NOCY
+        INR  B
+NOCY:   INX  H
+        DCR  C
+        JNZ  LOOP
+        STA  8291H
+        MOV  A, B
+        STA  8292H
+        RST  3` },
+
+{ set:"Assignment 3", no:3, org:0x8000, id:"a3q3",
+  title:"Mark each byte even or odd",
+  q:"A set of 8 data (4CH, 32H, F2H, 0AH, 87H, 40H, 87H and 8AH) is stored in memory locations starting from 9020H. Write a program to check each of them, whether it is even or odd, and store the result in memory locations starting from 8420H. If the data is even store 01H in the corresponding location, otherwise store 00H.",
+  hint:"RRC drops bit 0 into the carry. Carry clear means the number was even. Careful: ANI 01H gives you the opposite convention to the one this question asks for.",
+  inputs:{0x9020:0x4C,0x9021:0x32,0x9022:0xF2,0x9023:0x0A,0x9024:0x87,0x9025:0x40,0x9026:0x87,0x9027:0x8A},
+  checks:[{at:0x8420,v:0x01,w:"4CH even"},{at:0x8421,v:0x01,w:"32H even"},{at:0x8422,v:0x01,w:"F2H even"},
+          {at:0x8423,v:0x01,w:"0AH even"},{at:0x8424,v:0x00,w:"87H odd"},{at:0x8425,v:0x01,w:"40H even"},
+          {at:0x8426,v:0x00,w:"87H odd"},{at:0x8427,v:0x01,w:"8AH even"}],
+  sol:`        ORG  8000H
+
+        LXI  H, 9020H    ; the data
+        LXI  D, 8420H    ; the answers
+        MVI  C, 08H
+LOOP:   MOV  A, M
+        RRC              ; bit 0 -> carry
+        JNC  EVEN        ; no carry means it was even
+        MVI  A, 00H      ; odd
+        JMP  STORE
+EVEN:   MVI  A, 01H
+STORE:  STAX D
+        INX  H
+        INX  D
+        DCR  C
+        JNZ  LOOP
+        RST  3` },
+
+{ set:"Assignment 4", no:1, org:0x8000, id:"a4q1",
+  title:"Multiply by successive addition",
+  q:"Multiply the four-bit number 04H stored in register B by 06H stored in register C, using the successive addition method. Store the result in register D.",
+  hint:"Add B to a running total C times. D holds the total, so bring it into A, add, and put it back.",
+  inputs:{},
+  checks:[{reg:"D",v:0x18,w:"04H x 06H = 18H"},{reg:"B",v:0x04,w:"multiplicand kept"}],
+  sol:`        ORG  8000H
+
+        MVI  B, 04H      ; multiplicand
+        MVI  C, 06H      ; multiplier
+        MVI  D, 00H      ; running product
+LOOP:   MOV  A, D
+        ADD  B
+        MOV  D, A
+        DCR  C
+        JNZ  LOOP
+        RST  3` },
+
+{ set:"Assignment 4", no:2, org:0x8000, id:"a4q2",
+  title:"Multiply two 8-bit numbers into a 16-bit result",
+  q:"Multiply the two eight-bit numbers 80H and 81H (keep them in registers B and C) and place the 16-bit result in memory locations 9290H (low byte) and 9291H (high byte).",
+  hint:"Use HL as the 16-bit accumulator: add B into L and let INR H catch every carry. SHLD writes both bytes in one instruction.",
+  inputs:{},
+  checks:[{at:0x9290,v:0x80,w:"low byte"},{at:0x9291,v:0x40,w:"high byte (80H x 81H = 4080H)"}],
+  sol:`        ORG  8000H
+
+        MVI  B, 80H      ; multiplicand
+        MVI  C, 81H      ; multiplier
+        LXI  H, 0000H    ; 16-bit product
+LOOP:   MOV  A, L
+        ADD  B
+        MOV  L, A
+        JNC  NOCY
+        INR  H           ; carry into the high byte
+NOCY:   DCR  C
+        JNZ  LOOP
+        SHLD 9290H
+        RST  3` }
+];
+
+const RSTVEC=[0x00,0x08,0x10,0x18,0x20,0x28,0x30,0x38];
+function seatMonitor(){ for(const v of RSTVEC) MEM[v]=0x76; }   // RST n lands on a HLT
+const REGGET={A:()=>cpu.a,B:()=>cpu.b,C:()=>cpu.c,D:()=>cpu.d,E:()=>cpu.e,H:()=>cpu.h,L:()=>cpu.l};
+for(const a of ASSIGN){
+  TASKS.push({
+    name:a.set.replace("Assignment","Asgn")+" Q"+a.no+" — "+a.title,
+    group:a.set, start:a.org, stmt:a.q, inputs:a.inputs, checks:a.checks,
+    src:a.sol.split("\n").filter(l=>!/^\s*ORG\b/i.test(l)).join("\n").replace(/^\s*\n/,"")
+  });
+}
+let curTask=0, customTask=null;
+const taskCache=new Map();
+function taskImage(t){
+  if(taskCache.has(t)) return taskCache.get(t);
+  const p=assemble("        ORG  "+h4(t.start)+"H\n"+t.src);
+  const arr=[...p.image.entries()].sort((a,b)=>a[0]-b[0]);
+  taskCache.set(t,arr); t._rows=p.rows.filter(r=>r.bytes.length);
+  return arr;
+}
+function taskOptions(){
+  let html="", grp=null, open=false;
+  TASKS.forEach((x,i)=>{
+    const g=x.group||"Standard exercises";
+    if(g!==grp){ if(open) html+="</optgroup>"; html+='<optgroup label="'+g+'">'; grp=g; open=true; }
+    html+='<option value="'+i+'"'+(i===curTask?" selected":"")+">"+escapeHtml(x.name)+"</option>";
+  });
+  return html+(open?"</optgroup>":"");
+}
+function renderTask(){
+  const t=TASKS[curTask], box=document.getElementById("tab-task");
+  const img=taskImage(t);
+  const rows=t._rows;
+  const ins=Object.keys(t.inputs).map(Number).sort((a,b)=>a-b);
+  const outs=taskChecks(t);
+
+  let sheet="";
+  for(const r of rows){
+    let a=r.addr;
+    r.bytes.forEach((b,k)=>{
+      sheet+='<tr data-a="'+(a+k)+'" data-b="'+b+'"><td class="ad">'+h4(a+k)+'</td><td class="by">'+h2(b)+
+        '</td><td class="mn">'+(k===0?escapeHtml(r.text.trim()):"")+'</td></tr>';
+    });
+  }
+  let dataRows="";
+  for(const a of ins) dataRows+='<tr data-a="'+a+'" data-b="'+t.inputs[a]+'"><td class="ad">'+h4(a)+
+    '</td><td class="by">'+h2(t.inputs[a])+'</td><td class="mn">input</td></tr>';
+
+  box.innerHTML=
+    '<div class="taskbar"><span class="lbl">Exercise</span>'+
+      '<select id="taskSel">'+taskOptions()+'</select>'+
+    '</div>'+
+    '<h3 class="tt">'+t.name+'</h3>'+
+    '<p class="stmt">'+t.stmt+'</p>'+
+
+    '<div class="sheet"><div class="sheet-hd"><span class="lbl">Program — key in from '+h4(t.start)+'H</span>'+
+      '<span class="sp"></span><span class="lbl">'+img.length+' bytes</span></div>'+
+      '<div class="sheet-bd"><table class="sh" id="shProg"><thead><tr><th>Address</th><th>Code</th><th>Mnemonic</th></tr></thead>'+
+      '<tbody>'+sheet+'</tbody></table></div></div>'+
+
+    '<div class="sheet"><div class="sheet-hd"><span class="lbl">'+
+      (ins.length?'Data — key in as well':'Data — none, the program supplies its own')+'</span></div>'+
+      '<div class="sheet-bd"><table class="sh" id="shData"><thead><tr><th>Address</th><th>Value</th><th></th></tr></thead>'+
+      '<tbody>'+dataRows+'</tbody></table></div></div>'+
+
+    '<div class="rowbtns">'+
+      '<button class="btn primary" id="bVerify">Check what I keyed in</button>'+
+      '<button class="btn" id="bResult">Check the result</button>'+
+      '<button class="btn ghost" id="bLoad">Load it for me</button>'+
+      '<button class="btn ghost" id="bWipe">Wipe memory</button>'+
+    '</div>'+
+    '<div id="taskOut"></div>'+
+    '<div class="warn"><b>The order on the bench:</b> key the program in from '+h4(t.start)+'H, '+
+      (ins.length?'key the data in, ':'')+'press <b>RESET</b>, then <b>GO</b> '+h4(t.start)+' <b>EXEC</b>. '+
+      'When it halts, press <b>RESET</b>, then '+readBackPhrase(outs)+'.</div>';
+
+  document.getElementById("taskSel").onchange=e=>{curTask=Number(e.target.value);guide=null;clearHint();
+    document.getElementById("bGuide").textContent="Guide me";renderTask();};
+  document.getElementById("bVerify").onclick=verifyTyped;
+  document.getElementById("bResult").onclick=checkResult;
+  document.getElementById("bLoad").onclick=()=>{
+    for(const [a,b] of img) MEM[a]=b;
+    for(const a of ins) MEM[a]=t.inputs[a];
+    touched.clear(); refreshPeek(); verifyTyped();
+    press("RESET");
+    document.getElementById("taskOut").innerHTML+=
+      '<div class="verdict info">Loaded for you. Now press <b>GO</b> → '+h4(t.start)+' → <b>EXEC</b> on the kit.</div>';
+  };
+  document.getElementById("bWipe").onclick=()=>{MEM.fill(0);seatMonitor();touched.clear();refreshPeek();
+    document.getElementById("taskOut").innerHTML='<div class="verdict info">Memory cleared — key it in from scratch.</div>';};
+  refreshPeek();
+}
+function verifyTyped(){
+  const t=TASKS[curTask], img=taskImage(t);
+  const ins=Object.keys(t.inputs).map(Number).sort((a,b)=>a-b);
+  let wrong=0, firstBad=null;
+  document.querySelectorAll("#shProg tr[data-a], #shData tr[data-a]").forEach(tr=>{
+    const a=Number(tr.dataset.a), want=Number(tr.dataset.b), got=MEM[a];
+    const ok=got===want;
+    tr.classList.toggle("ok",ok); tr.classList.toggle("bad",!ok);
+    const c=tr.querySelector(".mn");
+    if(!ok){ wrong++; if(firstBad===null)firstBad=a; c.textContent=c.textContent.split("  ←")[0]+"  ← you keyed "+h2(got); }
+    else c.textContent=c.textContent.split("  ←")[0];
+  });
+  const total=img.length+ins.length;
+  document.getElementById("taskOut").innerHTML= wrong===0
+    ? '<div class="verdict pass">All '+total+' bytes match the sheet. Press <b>RESET</b>, then <b>GO</b> → '+h4(t.start)+' → <b>EXEC</b>.</div>'
+    : '<div class="verdict fail">'+wrong+' of '+total+' bytes are wrong — the first is at '+h4(firstBad)+
+      'H, marked in the table. On the kit: <b>EX MEM</b> → '+h4(firstBad)+' → <b>NEXT</b>, then key the right byte.</div>';
+}
+function readBackPhrase(outs){
+  const mem=outs.filter(o=>!o.reg).map(o=>h4(o.at)+"H");
+  const reg=outs.filter(o=>o.reg).map(o=>o.reg);
+  const bits=[];
+  if(mem.length) bits.push("read "+(mem.length>4?mem.slice(0,4).join(", ")+" and the rest of the block":mem.join(" and "))+" with <b>EX MEM</b>");
+  if(reg.length) bits.push("read register "+reg.join(" / ")+" with <b>EX REG</b>");
+  return bits.join(", and ");
+}
+function taskChecks(t){
+  if(t.checks) return t.checks;
+  return t.out(t.inputs).map(x=>({at:x[0],v:x[1],w:x[2]}));
+}
+function checkResult(){
+  const t=TASKS[curTask];
+  const outs=taskChecks(t);
+  let all=true,html="";
+  for(const c of outs){
+    const got=c.reg?REGGET[c.reg]():MEM[c.at&0xFFFF];
+    const ok=got===(c.v&0xFF); if(!ok)all=false;
+    html+='<div class="chk '+(ok?"pass":"fail")+'"><span class="mark">'+(ok?"✓":"✗")+'</span><span>'+
+      (c.reg?("reg "+c.reg):h4(c.at)+"H")+'</span><span style="color:var(--ink-3)">'+escapeHtml(c.w)+
+      '</span><span style="margin-left:auto">expected '+h2(c.v&0xFF)+'H · found '+h2(got)+'H</span></div>';
+  }
+  document.getElementById("taskOut").innerHTML=html+'<div class="verdict '+(all?"pass":"fail")+'">'+
+    (all?"Correct — that is the answer you would show your examiner. Read each one on the kit with <b>EX MEM</b> to be sure."
+        :"Not right yet. Check the data bytes are in place, then run it again with <b>SI</b> instead of <b>EXEC</b> and watch the registers after each step.")+'</div>';
+}
+
+/* ============================================================
+   PEEK PANEL
+   ============================================================ */
+let pBase=0x2000;
+function buildPeek(){
+  const r=document.getElementById("pRegs");
+  r.innerHTML=["A","B","C","D","E","H","L"].map(n=>'<div class="reg" id="pr'+n+'"><span class="n">'+n+
+    '</span><span class="v">00</span></div>').join("")+
+    '<div class="reg" id="prPC"><span class="n">PC</span><span class="v">0000</span></div>'+
+    '<div class="reg" id="prSP"><span class="n">SP</span><span class="v">FFFF</span></div>';
+  document.getElementById("pFlags").innerHTML=[["S","fs"],["Z","fz"],["AC","fac"],["P","fp"],["CY","fcy"]]
+    .map(([n,k])=>'<div class="flag" id="pf'+k+'"><div class="n">'+n+'</div><div class="v">0</div></div>').join("");
+}
+function refreshPeek(){
+  const m={A:cpu.a,B:cpu.b,C:cpu.c,D:cpu.d,E:cpu.e,H:cpu.h,L:cpu.l};
+  for(const n in m){const el=document.getElementById("pr"+n);if(el)el.querySelector(".v").textContent=h2(m[n]);}
+  document.getElementById("prPC").querySelector(".v").textContent=h4(cpu.pc);
+  document.getElementById("prSP").querySelector(".v").textContent=h4(cpu.sp);
+  for(const k of ["fs","fz","fac","fp","fcy"]){
+    const el=document.getElementById("pf"+k);
+    el.classList.toggle("on",!!cpu[k]); el.querySelector(".v").textContent=cpu[k]?"1":"0";
+  }
+  let head="<thead><tr><th></th>";
+  for(let i=0;i<16;i++)head+="<th>"+i.toString(16).toUpperCase()+"</th>";
+  head+="</tr></thead><tbody>";
+  let body="";
+  for(let r=0;r<8;r++){
+    const base=(pBase+r*16)&0xFFFF;
+    body+='<tr><td class="ad">'+h4(base)+"</td>";
+    for(let c=0;c<16;c++){
+      const a=(base+c)&0xFFFF;
+      body+='<td class="b'+(touched.has(a)?" t":"")+(a===cpu.pc?" pc":"")+'">'+h2(MEM[a])+"</td>";
+    }
+    body+="</tr>";
+  }
+  document.getElementById("pMem").innerHTML=head+body+"</tbody>";
+}
+document.getElementById("pBase").addEventListener("change",e=>{
+  const v=parseInt(e.target.value,16);
+  if(!Number.isNaN(v)){pBase=v&0xFFF0;e.target.value=h4(pBase);refreshPeek();}
+});
+document.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{
+  pBase=parseInt(b.dataset.goto,16);document.getElementById("pBase").value=h4(pBase);refreshPeek();});
+
+/* ============================================================
+   CODE SHEET MAKER
+   ============================================================ */
+document.getElementById("asm").value=
+`        ORG  2000H
+
+        LDA  2050H
+        MOV  B, A
+        LDA  2051H
+        ADD  B
+        STA  2052H
+        HLT`;
+document.getElementById("bMake").onclick=()=>{
+  const out=document.getElementById("sheetOut");
+  let p;
+  try{ p=assemble(document.getElementById("asm").value); }
+  catch(e){ out.innerHTML='<div class="verdict fail">'+(e.line?"Line "+e.line+": ":"")+escapeHtml(e.message)+'</div>'; return; }
+  let rows="";
+  for(const r of p.rows){
+    if(!r.bytes.length) continue;
+    r.bytes.forEach((b,k)=>{
+      rows+='<tr><td class="ad">'+h4(r.addr+k)+'</td><td class="by">'+h2(b)+'</td><td class="mn">'+
+        (k===0?escapeHtml(r.text.trim()):"")+'</td></tr>';
+    });
+  }
+  out.innerHTML='<div class="sheet"><div class="sheet-hd"><span class="lbl">Key this in</span><span class="sp"></span>'+
+    '<span class="lbl">'+p.size+' bytes from '+h4(p.start)+'H</span></div><div class="sheet-bd">'+
+    '<table class="sh"><thead><tr><th>Address</th><th>Code</th><th>Mnemonic</th></tr></thead><tbody>'+rows+
+    '</tbody></table></div></div>';
+};
+document.getElementById("bSendKit").onclick=()=>{
+  let p;
+  try{ p=assemble(document.getElementById("asm").value); }
+  catch(e){ document.getElementById("sheetOut").innerHTML='<div class="verdict fail">'+(e.line?"Line "+e.line+": ":"")+escapeHtml(e.message)+'</div>'; return; }
+  for(const [a,b] of p.image) MEM[a]=b;
+  touched.clear(); refreshPeek(); press("RESET");
+  document.getElementById("sheetOut").innerHTML='<div class="verdict pass">Loaded at '+h4(p.start)+
+    'H. On the kit: <b>GO</b> → '+h4(p.start)+' → <b>EXEC</b>.</div>';
+};
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",String(x===t)));
+    for(const id of ["task","seq","peek","sheet"]) document.getElementById("tab-"+id).hidden=(id!==t.dataset.tab);
+  };
+});
+document.getElementById("bTheme").onclick=()=>{
+  const r=document.documentElement;
+  const dark=getComputedStyle(r).getPropertyValue("--bg").trim().startsWith("#12");
+  r.setAttribute("data-theme",dark?"light":"dark");
+};
+
+buildDigits(); buildKeys(); buildPeek();
+seatMonitor();
+cpuReset(0x2000);
+renderTask();
+press("RESET");
+</script>
+</body>
+</html>
