@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>8085 Lab Bench</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,8 +26,8 @@
   --rule-hard:#2a3033;
   --blue:#25506f;
   --blue-soft:#dde6ed;
-  --oxide:#ad3a1f;
-  --oxide-soft:#f6e2da;
+  --oxide:#b8232d;
+  --oxide-soft:#f7dfe0;
   --ok:#2a6b47;
   --ok-soft:#dcebe1;
   --bad:#a4332a;
@@ -36,7 +37,7 @@
   --panel-rule:#333a3e;
   --panel-ink:#e9ece7;
   --panel-ink-2:#98a2a8;
-  --live:#ff6f43;
+  --live:#ff4b55;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -51,8 +52,8 @@
     --rule-hard:#7e888e;
     --blue:#77a6c9;
     --blue-soft:#17252f;
-    --oxide:#e2714c;
-    --oxide-soft:#2e1a13;
+    --oxide:#ee5a62;
+    --oxide-soft:#2f1619;
     --ok:#56b585;
     --ok-soft:#14291f;
     --bad:#dd6f64;
@@ -67,7 +68,7 @@
   --ink:#e4e7e3; --ink-2:#98a1a7; --ink-3:#6b7379;
   --rule:#262b2e; --rule-2:#394044; --rule-hard:#7e888e;
   --blue:#77a6c9; --blue-soft:#17252f;
-  --oxide:#e2714c; --oxide-soft:#2e1a13;
+  --oxide:#ee5a62; --oxide-soft:#2f1619;
   --ok:#56b585; --ok-soft:#14291f; --bad:#dd6f64; --bad-soft:#2d1a18;
   --panel:#101315; --panel-2:#171b1e; --panel-rule:#282e32;
 }
@@ -113,7 +114,7 @@ header.bar{
 .transport .btn:last-child{border-right:0}
 .transport .btn:hover{background:#2c3237;color:#fff}
 .transport .btn.primary{background:var(--oxide);color:#fff}
-.transport .btn.primary:hover{background:#c1452a}
+.transport .btn.primary:hover{background:#cc2a35}
 
 .btn{
   font:inherit;font-size:12px;font-stretch:84%;font-weight:600;letter-spacing:.055em;text-transform:uppercase;
@@ -124,7 +125,7 @@ header.bar{
 .btn:hover{border-color:var(--ink-3);background:var(--sheet-2)}
 .btn:active{transform:translateY(1px)}
 .btn.primary{background:var(--oxide);border-color:var(--oxide);color:#fff}
-.btn.primary:hover{background:#c1452a;border-color:#c1452a}
+.btn.primary:hover{background:#cc2a35;border-color:#cc2a35}
 .btn.ghost{background:transparent}
 .btn.sm{padding:4px 8px;font-size:11px}
 .btn[disabled]{opacity:.4;cursor:not-allowed}
@@ -144,7 +145,7 @@ input[type=range]{accent-color:var(--live)}
 .status .dot{width:7px;height:7px;border-radius:50%;background:var(--panel-ink-2);flex:0 0 auto}
 .status[data-s="run"]{color:#7fd4a2;border-color:#2f5c44}
 .status[data-s="run"] .dot{background:#7fd4a2;animation:pulse 1s infinite}
-.status[data-s="halt"]{color:var(--live);border-color:#5a3226}
+.status[data-s="halt"]{color:var(--live);border-color:#5c2629}
 .status[data-s="halt"] .dot{background:var(--live)}
 .status[data-s="err"]{color:#ef8078;border-color:#5e2f2b}
 .status[data-s="err"] .dot{background:#ef8078}
@@ -213,7 +214,7 @@ input[type=range]{accent-color:var(--live)}
   grid-column:1/-1;font-family:"DM Mono",monospace;font-size:10px;color:#79838a;letter-spacing:.02em;
 }
 .rpair .solo{grid-column:1/-1;font-size:14px;color:#dfe4e0}
-.rpair.chg{border-color:var(--live);background:#271a15}
+.rpair.chg{border-color:var(--live);background:#2b1719}
 .rpair.chg .byte,.rpair.chg .solo{color:var(--live)}
 
 /* counters */
@@ -428,11 +429,42 @@ footer{margin-top:26px;padding-top:12px;border-top:1px solid var(--rule);color:v
   img{max-width:100%}
   a.btn{text-decoration:none}
 </style>
+<style>
+  .brand{align-items:center}
+  .mark{display:inline-flex;flex:0 0 auto;line-height:0;margin-right:1px}
+  .mark img{width:26px;height:26px;display:block}
+  .maker{display:inline-flex;align-items:center;gap:7px;color:inherit;text-decoration:none}
+  .maker img{width:18px;height:18px;display:block}
+  .maker b{font-family:"Zilla Slab",Georgia,serif;font-weight:700;font-size:13px;color:var(--ink);letter-spacing:.005em}
+  .maker:hover b{color:var(--oxide,var(--accent))}
+</style>
+<style>
+  /* JiroRaiden mark: the J takes the ink colour, cut-outs take the surface colour */
+  .mark{display:inline-flex;align-items:center;line-height:0;color:var(--panel-ink);
+        --jr-cut:var(--panel);--jr-red:#ec2f3a;--jr-bolt:#ff4650}
+  .mark .jr{height:36px;width:31px;display:block}
+  .mark:hover{--jr-red:#ff3d48}
+  .brand-rule{width:1px;height:22px;background:var(--panel-rule);align-self:center;margin:0 2px}
+  .maker{color:var(--ink);--jr-cut:var(--paper);--jr-red:#dd2530;--jr-bolt:#ef2d38}
+  .maker .jr{height:22px;width:19px;display:block}
+</style>
 </head>
 <body>
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <symbol id="jr-mark" viewBox="268 100 718 838">
+    <path style="fill:var(--jr-red,#e0262f)" d="M585.8 212.5 L563.6 212 L541.6 214.7 L519.8 219.1 L498.3 225.1 L477.2 232.7 L456.6 241.8 L436.6 252.2 L417.2 264.1 L398.7 277.2 L381.2 291.9 L365.3 308.2 L350.4 325.5 L336.7 343.7 L324.2 362.8 L312.9 382.6 L302.9 403.1 L294.3 424.2 L287 445.8 L281.2 467.9 L276.7 490.2 L273.7 512.9 L272.2 535.6 L272.2 558.4 L273.6 581.2 L276.4 603.8 L281.1 626.1 L287.6 648 L295.4 669.3 L304.6 690 L315.2 710 L326.9 729.3 L339.8 747.7 L353.9 765.2 L369.1 781.7 L385.2 797.2 L402.3 811.5 L420.2 824.7 L438.9 836.7 L458.3 847.3 L478.3 856.7 L498.8 864.6 L519.7 871.2 L541 876.3 L562.5 879.8 L562.5 879.8 L541.7 873.6 L521.3 866.4 L501.5 857.9 L482.3 848.3 L463.8 837.6 L446 825.7 L429.1 812.8 L413.1 798.8 L398 784 L384 768.2 L371 751.6 L359.2 734.3 L348.5 716.3 L339 697.6 L330.7 678.5 L323.7 658.9 L318 639 L313.5 618.8 L310 598.5 L307.4 578 L306.1 557.4 L306.2 536.8 L307.6 516.2 L310.3 495.8 L314.3 475.5 L319.6 455.6 L326.2 436.1 L334 417 L343 398.4 L353.2 380.5 L364.5 363.3 L376.9 346.8 L390.3 331.1 L404.7 316.4 L419.6 302 L435.1 288.2 L451.5 275.4 L468.7 263.5 L486.7 252.7 L505.4 242.9 L524.8 234.2 L544.7 226.5 L565.1 219.7 L585.8 212.5 Z M668.2 212.5 L690.5 211.6 L712.5 214 L734.5 218.2 L756.1 224.1 L777.3 231.5 L798.1 240.5 L818.3 250.9 L837.8 262.6 L856.6 275.7 L874.2 290.4 L890.2 306.8 L905.2 324.2 L918.9 342.5 L931.5 361.7 L942.9 381.7 L952.9 402.3 L961.6 423.5 L968.9 445.2 L974.8 467.4 L979.2 489.9 L982.2 512.7 L983.8 535.5 L983.8 558.5 L982.4 581.4 L979.6 604.1 L974.8 626.6 L968.2 648.5 L960.2 669.9 L950.9 690.7 L940.2 710.8 L928.4 730.1 L915.3 748.5 L901.1 766 L885.8 782.5 L869.6 798 L852.4 812.3 L834.3 825.4 L815.5 837.3 L796 847.9 L776 857.2 L755.4 865 L734.4 871.5 L713.1 876.5 L691.5 879.8 L691.5 879.8 L712.3 873.4 L732.6 866.1 L752.3 857.5 L771.5 847.8 L789.9 837 L807.6 825.1 L824.4 812.1 L840.3 798.1 L855.2 783.2 L869.1 767.4 L882 750.8 L893.7 733.5 L904.2 715.5 L913.6 696.9 L921.8 677.8 L928.6 658.3 L934.3 638.5 L938.6 618.4 L942 598.2 L944.6 577.8 L945.9 557.4 L945.8 536.9 L944.4 516.4 L941.7 496.1 L937.8 476 L932.5 456.2 L926 436.8 L918.2 417.8 L909.3 399.4 L899.1 381.5 L887.9 364.4 L875.5 348 L862.2 332.5 L847.9 317.8 L833.2 303.4 L817.9 289.6 L801.6 276.7 L784.6 264.8 L766.7 253.9 L748.2 244 L729 235.1 L709.2 227.2 L688.8 220.1 L668.2 212.5 Z"/>
+    <path style="fill:currentColor" d="M408 410 L598 410 L598 645 L493 735 L288 735 L393 672 L466 672 L518 622 L518 472 L438 472 Z"/>
+    <path style="fill:var(--jr-red,#e0262f)" fill-rule="evenodd" d="M644 410 L829 410 L874 465 L866 528 L816 578 L874 745 L796 745 L739 592 L682 592 L664 745 L604 745 Z M697 472 L804 472 L816 486 L811 514 L792 530 L690 530 Z"/>
+    <path style="fill:var(--jr-cut,#0b0d10);stroke:var(--jr-cut,#0b0d10)" stroke-width="16" stroke-linejoin="round" d="M612 351 H632 L631 860 L622 932 L613 860 Z"/>
+    <path style="fill:var(--jr-red,#e0262f)" d="M612 351 H632 L631 860 L622 932 L613 860 Z M613 337 H631 V351 H613 Z M580 318 H664 Q668 318 668 322 V327 Q668 331 664 331 H580 Q576 331 576 327 V322 Q576 318 580 318 Z M590 331 H654 V337 H590 Z M608 122 H636 V318 H608 Z M606 108 H638 V122 H606 Z"/>
+    <path style="fill:var(--jr-cut,#0b0d10)" d="M622 131 L630 141 L622 151 L614 141 Z M622 153.6 L630 163.6 L622 173.6 L614 163.6 Z M622 176.2 L630 186.2 L622 196.2 L614 186.2 Z M622 198.8 L630 208.8 L622 218.8 L614 208.8 Z M622 221.4 L630 231.4 L622 241.4 L614 231.4 Z M622 244 L630 254 L622 264 L614 254 Z M622 266.6 L630 276.6 L622 286.6 L614 276.6 Z M622 289.2 L630 299.2 L622 309.2 L614 299.2 Z"/>
+    <path style="fill:var(--jr-cut,#0b0d10);stroke:var(--jr-cut,#0b0d10)" stroke-width="16" stroke-linejoin="miter" d="M610 506 L640 506 L613 592 L633 587 L543 728 L590 612 L570 617 Z"/>
+    <path style="fill:var(--jr-bolt,var(--jr-red,#e0262f))" d="M610 506 L640 506 L613 592 L633 587 L543 728 L590 612 L570 617 Z"/>
+  </symbol>
+</svg>
 <header class="bar">
   <div class="bar-in">
-    <div class="brand"><b>8085 Lab Bench</b><span>Assemble &middot; Step &middot; Verify</span></div>
+    <div class="brand"><a class="mark" href="./" aria-label="8085 Lab home"><svg class="jr" aria-hidden="true"><use href="#jr-mark"/></svg></a><span class="brand-rule" aria-hidden="true"></span><b>8085 Lab Bench</b><span>Assemble &middot; Step &middot; Verify</span></div>
     <div class="transport">
       <button class="btn" id="bAsm">Assemble</button>
       <button class="btn" id="bStep">Step</button>
@@ -625,6 +657,7 @@ footer{margin-top:26px;padding-top:12px;border-top:1px solid var(--rule);color:v
   </section>
 
   <footer>
+    <a class="maker" href="https://github.com/JiroRaiden" target="_blank" rel="noopener"><svg class="jr" aria-hidden="true"><use href="#jr-mark"/></svg>Built by <b>JiroRaiden</b></a>
     <span>An offline 8085 simulator for lab practice.</span>
     <span>Opcodes, T-states and flag behaviour follow the Intel 8085A datasheet.</span>
   </footer>

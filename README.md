@@ -1,6 +1,16 @@
-# 8085 Lab
+<p align="center">
+  <img src="logo.svg" width="200" alt="JiroRaiden">
+</p>
 
-**[Live demo →](https://8085-microprocessor-iiest.vercel.app/)** · [Lab Bench](https://8085-microprocessor-iiest.vercel.app/lab-bench.html) · [Trainer Kit](https://8085-microprocessor-iiest.vercel.app/trainer-kit.html)
+<h1 align="center">8085 Lab</h1>
+
+<p align="center">
+  <b><a href="https://8085-microprocessor-iiest.vercel.app/">Live demo →</a></b>
+  &nbsp;·&nbsp; <a href="https://8085-microprocessor-iiest.vercel.app/lab-bench.html">Lab Bench</a>
+  &nbsp;·&nbsp; <a href="https://8085-microprocessor-iiest.vercel.app/trainer-kit.html">Trainer Kit</a>
+  <br>
+  <sub>by <a href="https://github.com/JiroRaiden">JiroRaiden</a></sub>
+</p>
 
 An Intel 8085 assembler, CPU emulator and trainer-kit simulator that runs entirely in the browser.
 Built for microprocessor lab practice: write a program, run it instruction by instruction, watch the
@@ -12,6 +22,8 @@ Three files, no build step, no dependencies, no backend.
 index.html         landing page
 lab-bench.html     assembler + simulator + auto-graded lab assignments
 trainer-kit.html   trainer-kit emulator (six-digit display + hex keypad)
+logo.svg           full JiroRaiden logo (used in this README)
+favicon.svg        compact mark for the browser tab
 ```
 
 ---
@@ -269,3 +281,51 @@ checks and memory checks work the same way.
 
 ---
 
+## Deploying
+
+The folder is static, so any host works.
+
+**Vercel, from this folder**
+
+```bash
+npm i -g vercel
+vercel          # accept the defaults
+vercel --prod   # promote to your real URL
+```
+
+**Vercel, from GitHub**
+
+```bash
+git init && git add . && git commit -m "8085 lab"
+git branch -M main
+git remote add origin https://github.com/<you>/8085-Microprocessor.git
+git push -u origin main
+```
+
+Then on vercel.com: **Add New → Project**, import the repo, Framework Preset **Other**, leave Build
+Command and Output Directory empty. No `vercel.json` is needed — Vercel serves a folder containing
+`index.html` as-is.
+
+The same folder works unchanged on Netlify (drag it onto app.netlify.com/drop), GitHub Pages or
+Cloudflare Pages.
+
+---
+
+## Notes
+
+- **Fonts** load from Google Fonts, so the first load needs the network. Delete the two `<link>` tags
+  at the top of each file to make it fully offline — the fallback stacks are already in place.
+- **Your progress** (solved assignments, the program in the editor) is kept in the browser's
+  `localStorage`. It is per-device, and nothing is sent anywhere.
+- **Timing** is reported at 3.072 MHz, the clock most 8085 lab kits run at. T-state counts come from
+  the datasheet; the emulator counts them but does not execute cycle by cycle.
+- **`IN`/`OUT`** read and write a 256-byte port array. `OUT` is displayed; there is no peripheral
+  behind it.
+- **`RIM`** returns 00H and **`SIM`** does nothing, since there are no interrupts to mask.
+
+---
+
+<p align="center">
+  <img src="favicon.svg" width="40" alt=""><br>
+  <sub>Built by <a href="https://github.com/JiroRaiden">JiroRaiden</a></sub>
+</p>
