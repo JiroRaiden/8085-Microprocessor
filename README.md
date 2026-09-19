@@ -1,6 +1,6 @@
 # 8085 Lab
 
-**[Live demo →](https://8085-microprocessor.vercel.app)** · [Lab Bench](https://8085-microprocessor.vercel.app/lab-bench.html) · [Trainer Kit](https://8085-microprocessor.vercel.app/trainer-kit.html)
+**[Live demo →](https://8085-microprocessor-iiest.vercel.app/)** · [Lab Bench](https://8085-microprocessor-iiest.vercel.app/lab-bench.html) · [Trainer Kit](https://8085-microprocessor-iiest.vercel.app/trainer-kit.html)
 
 An Intel 8085 assembler, CPU emulator and trainer-kit simulator that runs entirely in the browser.
 Built for microprocessor lab practice: write a program, run it instruction by instruction, watch the
