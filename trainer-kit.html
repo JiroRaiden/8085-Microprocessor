@@ -714,7 +714,7 @@ function aluOp(k,v){
     case 1: addA(v,cpu.fcy,true); break;
     case 2: subA(v,0,true); break;
     case 3: subA(v,cpu.fcy,true); break;
-    case 4: {const r=cpu.a&v; cpu.fac=((cpu.a|v)&0x08)?1:0; cpu.fcy=0; szp(r); cpu.a=r; break;}
+    case 4: {const r=cpu.a&v; cpu.fac=1; cpu.fcy=0; szp(r); cpu.a=r; break;}
     case 5: {const r=cpu.a^v; cpu.fac=0; cpu.fcy=0; szp(r); cpu.a=r; break;}
     case 6: {const r=cpu.a|v; cpu.fac=0; cpu.fcy=0; szp(r); cpu.a=r; break;}
     default: subA(v,0,false);
